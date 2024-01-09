@@ -20,7 +20,7 @@ import { AppService } from './app.service';
           ...databaseConfig,
           autoLoadEntities: true,
           synchronize: false,
-          migrations: ['src/migrations/*.ts'],
+          migrations: ['dist/migrations/*.js'],
           migrationsTableName: 'migrations',
         }) as TypeOrmModuleOptions,
     }),
