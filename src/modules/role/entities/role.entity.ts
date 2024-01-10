@@ -9,10 +9,16 @@ import {
 export class Role {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 100,
+  })
   name: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 100,
+  })
   hebrewName: string;
 
   @CreateDateColumn({ type: 'timestamp' })

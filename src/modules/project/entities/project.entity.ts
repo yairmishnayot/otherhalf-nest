@@ -5,14 +5,14 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('cities')
-export class City {
+@Entity('projects')
+export class Project {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({
     type: 'varchar',
-    length: 70,
+    length: 100,
   })
   name: string;
 
