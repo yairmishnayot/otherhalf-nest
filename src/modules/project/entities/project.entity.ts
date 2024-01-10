@@ -1,7 +1,9 @@
+import { Group } from 'src/modules/group/entities/group.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -15,6 +17,9 @@ export class Project {
     length: 100,
   })
   name: string;
+
+  @OneToMany(() => Group, (group) => group.project)
+  groups: Group[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
