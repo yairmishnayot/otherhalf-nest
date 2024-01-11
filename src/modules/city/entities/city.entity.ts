@@ -3,9 +3,12 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('cities')
+@Unique(['name'])
 export class City {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,6 +22,6 @@ export class City {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @UpdateDateColumn()
   updatedAt: Date;
 }
