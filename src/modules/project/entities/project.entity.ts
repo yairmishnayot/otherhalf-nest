@@ -1,4 +1,4 @@
-import { Group } from 'src/modules/group/entities/group.entity';
+import { Group } from '../../group/entities/group.entity';
 import {
   Column,
   CreateDateColumn,
