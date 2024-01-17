@@ -14,7 +14,7 @@ import { SeederModule } from '../seeder/seeder.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule, SeederModule],
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (): Promise<TypeOrmModuleOptions> =>
         ({
@@ -25,6 +25,7 @@ import { SeederModule } from '../seeder/seeder.module';
           migrationsTableName: 'migrations',
         }) as TypeOrmModuleOptions,
     }),
+    SeederModule,
   ],
   controllers: [AppController],
   providers: [AppService],

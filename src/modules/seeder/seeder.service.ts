@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CitySeederService } from 'src/modules/seeder/city-seeder.service';
+import { CitySeederService } from './city-seeder.service';
 
 @Injectable()
 export class SeederService {
