@@ -6,6 +6,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { databaseConfig } from '../../config/database.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { SeederModule } from '../seeder/seeder.module';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { AppService } from './app.service';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule, SeederModule],
       inject: [ConfigService],
       useFactory: async (): Promise<TypeOrmModuleOptions> =>
         ({
