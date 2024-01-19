@@ -8,15 +8,24 @@ import { ProjectSeederService } from './projects-seeder/project-seeder/project-s
 import { ProjectModule } from '../project/project.module';
 import { GroupModule } from '../group/group.module';
 import { GroupSeederService } from './group-seeder/group-seeder/group-seeder.service';
+import { EthnicitiesSeederService } from './ethnicities-seeder/ethnicities-seeder/ethnicities-seeder.service';
+import { EthnicityModule } from '../ethnicity/ethnicity.module';
 
 @Module({
-  imports: [CityModule, RoleModule, ProjectModule, GroupModule],
+  imports: [
+    CityModule,
+    RoleModule,
+    ProjectModule,
+    GroupModule,
+    EthnicityModule,
+  ],
   providers: [
     SeederService,
     CitySeederService,
     RoleSeederService,
     ProjectSeederService,
     GroupSeederService,
+    EthnicitiesSeederService,
   ],
   exports: [SeederService],
 })

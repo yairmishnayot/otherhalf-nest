@@ -1,3 +1,4 @@
+import { EthnicitiesSeederService } from './ethnicities-seeder/ethnicities-seeder/ethnicities-seeder.service';
 import { ProjectSeederService } from './projects-seeder/project-seeder/project-seeder.service';
 import { Injectable } from '@nestjs/common';
 import { CitySeederService } from './city-seeder/city-seeder.service';
@@ -11,12 +12,14 @@ export class SeederService {
     private readonly roleSeederService: RoleSeederService,
     private readonly projectSeederService: ProjectSeederService,
     private readonly groupSeederService: GroupSeederService,
+    private readonly ethnicitySeederService: EthnicitiesSeederService,
   ) {}
 
   async seed() {
     // await this.citySeederService.seed();
     // await this.roleSeederService.seed();
-    await this.projectSeederService.seed();
-    await this.groupSeederService.seed();
+    // await this.projectSeederService.seed();
+    // await this.groupSeederService.seed();
+    await this.ethnicitySeederService.seed();
   }
 }
