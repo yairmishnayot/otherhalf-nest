@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectsIds } from 'src/enums/projectsIds.enum';
 import { Group } from 'src/modules/group/entities/group.entity';
+import { Project } from 'src/modules/project/entities/project.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -11,6 +12,9 @@ export class GroupSeederService {
   constructor(
     @InjectRepository(Group)
     private groupRepository: Repository<Group>,
+
+    @InjectRepository(Project)
+    private projectRepository: Repository<Project>,
   ) {}
 
   async seed() {
@@ -81,7 +85,15 @@ export class GroupSeederService {
       if (groupExists) {
         this.logger.log(`Group ${group.name} already exists. skipping...`);
       } else {
-        await this.groupRepository.save(group);
+        const newGroup = new Group();
+        newGroup.name = group.name;
+        newGroup.startAgeRange = group.startAgeRange;
+        newGroup.endAgeRange = group.endAgeRange;
+        const project = await this.projectRepository.findOne({
+          where: { id: group.projectId },
+        });
+        newGroup.project = project;
+        await this.groupRepository.save(newGroup);
       }
     }
 
