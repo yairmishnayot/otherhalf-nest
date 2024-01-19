@@ -6,9 +6,10 @@ import { RoleSeederService } from './role-seeder/role-seeder.service';
 import { RoleModule } from '../role/role.module';
 import { ProjectSeederService } from './projects-seeder/project-seeder/project-seeder.service';
 import { ProjectModule } from '../project/project.module';
+import { GroupModule } from '../group/group.module';
 
 @Module({
-  imports: [CityModule, RoleModule, ProjectModule],
+  imports: [CityModule, RoleModule, ProjectModule, GroupModule],
   providers: [
     SeederService,
     CitySeederService,
