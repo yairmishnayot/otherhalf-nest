@@ -1,3 +1,4 @@
+import { IsIn, IsInt, IsOptional } from 'class-validator';
 import { Project } from '../../project/entities/project.entity';
 import {
   Column,
@@ -24,12 +25,18 @@ export class Group {
 
   @Column({
     type: 'int',
+    nullable: true,
   })
+  @IsInt()
+  @IsOptional()
   startAgeRange: number;
 
   @Column({
     type: 'int',
+    nullable: true,
   })
+  @IsInt()
+  @IsOptional()
   endAgeRange: number;
 
   @CreateDateColumn({ type: 'timestamp' })

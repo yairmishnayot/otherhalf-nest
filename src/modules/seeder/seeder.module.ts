@@ -7,6 +7,7 @@ import { RoleModule } from '../role/role.module';
 import { ProjectSeederService } from './projects-seeder/project-seeder/project-seeder.service';
 import { ProjectModule } from '../project/project.module';
 import { GroupModule } from '../group/group.module';
+import { GroupSeederService } from './group-seeder/group-seeder/group-seeder.service';
 
 @Module({
   imports: [CityModule, RoleModule, ProjectModule, GroupModule],
@@ -15,6 +16,7 @@ import { GroupModule } from '../group/group.module';
     CitySeederService,
     RoleSeederService,
     ProjectSeederService,
+    GroupSeederService,
   ],
   exports: [SeederService],
 })
