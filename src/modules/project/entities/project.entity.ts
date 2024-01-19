@@ -5,10 +5,12 @@ import {
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('projects')
+@Unique(['name'])
 export class Project {
   @PrimaryGeneratedColumn()
   id: number;
