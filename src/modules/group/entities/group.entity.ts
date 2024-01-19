@@ -1,4 +1,4 @@
-import { IsIn, IsInt, IsOptional } from 'class-validator';
+import { IsInt, IsOptional } from 'class-validator';
 import { Project } from '../../project/entities/project.entity';
 import {
   Column,
