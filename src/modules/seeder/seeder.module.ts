@@ -10,6 +10,8 @@ import { GroupModule } from '../group/group.module';
 import { GroupSeederService } from './group-seeder/group-seeder/group-seeder.service';
 import { EthnicitiesSeederService } from './ethnicities-seeder/ethnicities-seeder/ethnicities-seeder.service';
 import { EthnicityModule } from '../ethnicity/ethnicity.module';
+import { ReligionStyleModule } from '../religion-style/religion-style.module';
+import { ReligionsStyleSeederService } from './religions-style-seeder/religions-style-seeder/religions-style-seeder.service';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { EthnicityModule } from '../ethnicity/ethnicity.module';
     ProjectModule,
     GroupModule,
     EthnicityModule,
+    ReligionStyleModule,
   ],
   providers: [
     SeederService,
@@ -26,6 +29,7 @@ import { EthnicityModule } from '../ethnicity/ethnicity.module';
     ProjectSeederService,
     GroupSeederService,
     EthnicitiesSeederService,
+    ReligionsStyleSeederService,
   ],
   exports: [SeederService],
 })
