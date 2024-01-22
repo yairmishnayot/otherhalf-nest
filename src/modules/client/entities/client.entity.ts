@@ -6,6 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 import {
   IsEmail,
@@ -39,6 +40,7 @@ import {
 } from '../../../enums';
 
 @Entity('clients')
+@Unique(['phone', 'email'])
 export class Client {
   @PrimaryGeneratedColumn()
   id: number;

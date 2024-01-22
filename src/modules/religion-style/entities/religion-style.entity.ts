@@ -3,10 +3,12 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('religion-styles')
+@Unique(['name'])
 export class ReligionStyle {
   @PrimaryGeneratedColumn()
   id: number;

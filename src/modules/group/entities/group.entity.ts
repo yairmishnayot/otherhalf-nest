@@ -6,10 +6,12 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('groups')
+@Unique(['name'])
 export class Group {
   @PrimaryGeneratedColumn()
   id: number;
