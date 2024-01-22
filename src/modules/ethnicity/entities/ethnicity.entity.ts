@@ -1,7 +1,9 @@
+import { Client } from '../../client/entities/client.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
@@ -21,4 +23,7 @@ export class Ethnicity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToMany(() => Client)
+  clients: Client[];
 }

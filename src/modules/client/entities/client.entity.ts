@@ -7,6 +7,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Unique,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import {
   IsEmail,
@@ -28,6 +30,7 @@ import { Group } from '../../group/entities/group.entity';
 import { User } from '../../user/entities/user.entity';
 import { City } from '../../city/entities/city.entity';
 import { ReligionStyle } from '../../religion-style/entities/religion-style.entity';
+import { Ethnicity } from '../../ethnicity/entities/ethnicity.entity';
 
 // Enums
 import {
@@ -200,4 +203,8 @@ export class Client {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToMany(() => Ethnicity)
+  @JoinTable()
+  ethnicities: Ethnicity[];
 }
