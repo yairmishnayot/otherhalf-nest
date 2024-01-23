@@ -9,7 +9,9 @@ describe('ReligionsStyleSeederService', () => {
       providers: [ReligionsStyleSeederService],
     }).compile();
 
-    service = module.get<ReligionsStyleSeederService>(ReligionsStyleSeederService);
+    service = module.get<ReligionsStyleSeederService>(
+      ReligionsStyleSeederService,
+    );
   });
 
   it('should be defined', () => {

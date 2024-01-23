@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ReligionStyleService } from './religion-style.service';
 import { CreateReligionStyleDto } from './dto/create-religion-style.dto';
 import { UpdateReligionStyleDto } from './dto/update-religion-style.dto';
@@ -23,7 +31,10 @@ export class ReligionStyleController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReligionStyleDto: UpdateReligionStyleDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateReligionStyleDto: UpdateReligionStyleDto,
+  ) {
     return this.religionStyleService.update(+id, updateReligionStyleDto);
   }
 
