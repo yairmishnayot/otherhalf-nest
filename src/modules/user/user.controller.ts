@@ -20,6 +20,11 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  @Post('bulk-import')
+  bulkImport() {
+    return 'test';
+  }
+
   @Get()
   findAll() {
     return this.userService.findAll();
