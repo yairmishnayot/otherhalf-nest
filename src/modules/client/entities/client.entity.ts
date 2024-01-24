@@ -205,6 +205,16 @@ export class Client {
   updatedAt: Date;
 
   @ManyToMany(() => Ethnicity)
-  @JoinTable()
+  @JoinTable({
+    name: 'clients_ethnicities',
+    joinColumn: {
+      name: 'client_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'ethnicity_id',
+      referencedColumnName: 'id',
+    },
+  })
   ethnicities: Ethnicity[];
 }
