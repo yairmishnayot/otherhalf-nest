@@ -5,6 +5,15 @@ import { databaseConfig } from '../../config/database.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SeederModule } from '../seeder/seeder.module';
+import { UserModule } from '../user/user.module';
+import { ClientModule } from '../client/client.module';
+import { EthnicityModule } from '../ethnicity/ethnicity.module';
+import { CityModule } from '../city/city.module';
+import { GroupModule } from '../group/group.module';
+import { ProjectModule } from '../project/project.module';
+import { ReligionStyleModule } from '../religion-style/religion-style.module';
+import { RoleModule } from '../role/role.module';
+import { UserGroupModule } from '../user-group/user-group.module';
 
 @Module({
   imports: [
@@ -24,6 +33,15 @@ import { SeederModule } from '../seeder/seeder.module';
         }) as TypeOrmModuleOptions,
     }),
     SeederModule,
+    UserModule,
+    ClientModule,
+    EthnicityModule,
+    CityModule,
+    GroupModule,
+    ProjectModule,
+    ReligionStyleModule,
+    RoleModule,
+    UserGroupModule,
   ],
   controllers: [AppController],
   providers: [AppService],
