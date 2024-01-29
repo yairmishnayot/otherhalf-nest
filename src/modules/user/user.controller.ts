@@ -10,19 +10,24 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserImportService } from './user-import/user-import.service';
+import { ImportUsersDTO } from './dto/import-users.dto';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly userImportService: UserImportService,
+  ) {}
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
-  @Post('bulk-import')
-  bulkImport() {
-    return 'test';
+  @Post('import')
+  async import(@Body() importUsersDto: ImportUsersDTO): Promise<any> {
+    return await this.userImportService.importUsers(importUsersDto);
   }
 
   @Get()
