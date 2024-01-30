@@ -3,10 +3,11 @@ export class ImportUsersDTO {
 }
 
 export class singleImportedUserDTO {
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   group: string;
   role: string;
   email: string;
+  password?: string;
 }

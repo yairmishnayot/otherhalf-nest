@@ -1,8 +1,9 @@
+import { User } from './../entities/user.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { ImportUsersDTO } from '../dto/import-users.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../entities/user.entity';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserImportService {
@@ -25,11 +26,14 @@ export class UserImportService {
       });
       if (userExists) {
         this.logger.log(
-          `User ${user.first_name} ${user.last_name} already exists. skipping...`,
+          `User ${user.firstName} ${user.lastName} already exists. skipping...`,
         );
         skippedUsersCount++;
         continue;
       }
+      user.password = await bcrypt.hash('123456', 10);
+      user.email = user.email.toLowerCase().trim();
+
       await this.userRepository.save(user);
       importedUsersCount++;
     }

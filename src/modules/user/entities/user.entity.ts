@@ -94,18 +94,4 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  beforeInsertAndUpdateActions() {
-    this.prepareEmail();
-  }
-
-  private prepareEmail(): void {
-    this.email = this.email.toLowerCase().trim();
-  }
-
-  private async hashPassword(): Promise<void> {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
 }
