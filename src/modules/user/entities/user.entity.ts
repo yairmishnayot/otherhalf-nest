@@ -1,9 +1,11 @@
 import { IsEmail, IsPhoneNumber } from 'class-validator';
+import { UserGroup } from '../../user-group/entities/user-group.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
@@ -90,4 +92,9 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => UserGroup, (userGroup) => userGroup.user, {
+    cascade: ['remove'],
+  })
+  userGroups: UserGroup[];
 }
