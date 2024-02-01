@@ -1,7 +1,5 @@
 import { IsEmail, IsPhoneNumber } from 'class-validator';
 import {
-  BeforeInsert,
-  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -10,8 +8,6 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
-
-import * as bcrypt from 'bcryptjs';
 
 @Entity('users')
 @Unique(['email', 'phone'])
