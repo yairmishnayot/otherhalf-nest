@@ -2,7 +2,7 @@ import { User } from './../entities/user.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { ImportUsersDTO } from '../dto/import-users.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Role } from 'src/modules/role/entities/role.entity';
 import { Group } from 'src/modules/group/entities/group.entity';
