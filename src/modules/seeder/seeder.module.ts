@@ -12,6 +12,7 @@ import { EthnicitiesSeederService } from './ethnicities-seeder/ethnicities-seede
 import { EthnicityModule } from '../ethnicity/ethnicity.module';
 import { ReligionStyleModule } from '../religion-style/religion-style.module';
 import { ReligionsStyleSeederService } from './religions-style-seeder/religions-style-seeder/religions-style-seeder.service';
+import { ClientSeederService } from './client-seeder/client-seeder/client-seeder.service';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ReligionsStyleSeederService } from './religions-style-seeder/religions-
     GroupSeederService,
     EthnicitiesSeederService,
     ReligionsStyleSeederService,
+    ClientSeederService,
   ],
   exports: [SeederService],
 })

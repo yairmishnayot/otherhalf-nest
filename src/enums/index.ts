@@ -5,3 +5,5 @@ export { YesNo } from './yes-no.enum';
 export { ShmiratNegia } from './shmirat-negia.enum';
 export { ShabbathKosher } from './shabbath-kosher.enum';
 export { ClientStatuses } from './client-statuses.enum';
+export { Roles } from './roles.enum';
+export { ReligionStyles } from './religion-styles.enum';
