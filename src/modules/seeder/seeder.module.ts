@@ -13,13 +13,17 @@ import { EthnicityModule } from '../ethnicity/ethnicity.module';
 import { ReligionStyleModule } from '../religion-style/religion-style.module';
 import { ReligionsStyleSeederService } from './religions-style-seeder/religions-style-seeder/religions-style-seeder.service';
 import { ClientSeederService } from './client-seeder/client-seeder/client-seeder.service';
+import { UserModule } from '../user/user.module';
+import { UserGroupModule } from '../user-group/user-group.module';
 
 @Module({
   imports: [
     CityModule,
     RoleModule,
     ProjectModule,
+    UserModule,
     GroupModule,
+    UserGroupModule,
     EthnicityModule,
     ReligionStyleModule,
   ],

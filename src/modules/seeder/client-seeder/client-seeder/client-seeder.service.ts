@@ -4,7 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Gender, ReligionStyles, Roles } from 'src/enums';
 import { ProjectsIds } from 'src/enums/projectsIds.enum';
 import { Client } from 'src/modules/client/entities/client.entity';
-import { Repository } from 'typeorm';
+import { UserGroup } from 'src/modules/user-group/entities/user-group.entity';
+import { User } from 'src/modules/user/entities/user.entity';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class ClientSeederService {
@@ -27,13 +29,21 @@ export class ClientSeederService {
 
   constructor(
     @InjectRepository(Client)
-    private clientRepository: Repository<Client>,
+    private readonly clientRepository: Repository<Client>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+
+    @InjectRepository(UserGroup)
+    private readonly userGroupRepository: Repository<UserGroup>,
   ) {}
 
   async seed() {
     this.logger.log('Starting seeding clients');
-    console.log(faker.person.firstName());
-    console.log(faker.person.lastName());
+    const age = this.chooseRandomAge(this.minAge, this.maxAge);
+    console.log(
+      await this.chooseRandomUserByClientAgeAndProjectId(age, this.projectId),
+    );
   }
 
   /**
@@ -45,8 +55,30 @@ export class ClientSeederService {
   }
 
   // generate random number between minAge and maxAge
-  private chooseAge(minAge: number, maxAge: number): number {
+  private chooseRandomAge(minAge: number, maxAge: number): number {
     return Math.floor(Math.random() * (maxAge - minAge + 1)) + this.minAge;
+  }
+
+  /**
+   * Choose a random user by the client's age and project id
+   * @param age
+   * @param projectId
+   * @returns
+   */
+  private async chooseRandomUserByClientAgeAndProjectId(
+    age: number,
+    projectId: number,
+  ) {
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoinAndSelect('user.userGroups', 'userGroup')
+      .innerJoinAndSelect('userGroup.group', 'group')
+      .where('userGroup.role_id = :roleId', { roleId: this.managerRoleId })
+      .andWhere('group.projectId = :projectId', { projectId })
+      .andWhere('group.startAgeRange <= :age', { age })
+      .andWhere('group.endAgeRange >= :age', { age })
+      .orderBy('RAND()')
+      .getOne();
   }
 
   /**
@@ -87,7 +119,7 @@ export class ClientSeederService {
    * @returns
    */
   private chooseStartAgeRangeSearch(clientAge: number): number {
-    const startAge = this.chooseAge(clientAge - 5, clientAge + 5);
+    const startAge = this.chooseRandomAge(clientAge - 5, clientAge + 5);
     return Math.max(startAge, this.minAge);
   }
 
@@ -97,7 +129,7 @@ export class ClientSeederService {
    * @returns
    */
   private chooseEndAgeRangeSearch(startAgeRange: number): number {
-    const endAge = this.chooseAge(startAgeRange + 1, startAgeRange + 5);
+    const endAge = this.chooseRandomAge(startAgeRange + 1, startAgeRange + 5);
     return Math.min(endAge, this.maxAge);
   }
 }
