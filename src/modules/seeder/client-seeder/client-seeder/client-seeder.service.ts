@@ -3,10 +3,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Gender, ReligionStyles, Roles } from 'src/enums';
 import { ProjectsIds } from 'src/enums/projectsIds.enum';
+import { City } from 'src/modules/city/entities/city.entity';
 import { Client } from 'src/modules/client/entities/client.entity';
+import { ReligionStyle } from 'src/modules/religion-style/entities/religion-style.entity';
 import { UserGroup } from 'src/modules/user-group/entities/user-group.entity';
 import { User } from 'src/modules/user/entities/user.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ClientSeederService {
@@ -26,6 +28,8 @@ export class ClientSeederService {
   private religionStyleId = ReligionStyles.DatiLeumi;
 
   private gender: number; // That will be the random generated gender
+  private generatedEmails: string[] = []; // To prevent duplicate emails
+  private generatedPhones: string[] = []; // To prevent duplicate phones
 
   constructor(
     @InjectRepository(Client)
@@ -36,14 +40,102 @@ export class ClientSeederService {
 
     @InjectRepository(UserGroup)
     private readonly userGroupRepository: Repository<UserGroup>,
+
+    @InjectRepository(City)
+    private readonly cityRepository: Repository<City>,
+
+    @InjectRepository(ReligionStyle)
+    private readonly religionStyleRepository: Repository<ReligionStyle>,
   ) {}
 
-  async seed() {
+  async seed(numOfClients: number = 1) {
     this.logger.log('Starting seeding clients');
-    const age = this.chooseRandomAge(this.minAge, this.maxAge);
-    console.log(
-      await this.chooseRandomUserByClientAgeAndProjectId(age, this.projectId),
-    );
+
+    // Get religion style
+    const religionStyle = await this.religionStyleRepository.findOneOrFail({
+      where: { id: this.religionStyleId },
+    });
+
+    for (let i = 0; i < numOfClients; i++) {
+      const age = this.chooseRandomAge(this.minAge, this.maxAge);
+      const user = await this.chooseRandomUserByClientAgeAndProjectId(
+        age,
+        this.projectId,
+      );
+
+      this.gender = this.chooseGender();
+
+      const client = this.clientRepository.create({
+        firstName: this.chooseFirstName(),
+        lastName: faker.person.lastName(),
+        email: this.generateRandomEmail(),
+        phone: this.generateIsraeliPhoneNumber(),
+        age,
+        birthDate: this.generateBirthdate(age),
+        height: this.chooseHeight(),
+        family: this.familyText,
+        education: this.education,
+        service: this.service,
+        currentlyDoing: this.currentlyDoing,
+        aboutMe: this.aboutMe,
+        lookingFor: this.lookingFor,
+        startAgeRangeSearch: this.chooseStartAgeRangeSearch(age),
+        endAgeRangeSearch: this.chooseEndAgeRangeSearch(
+          this.chooseStartAgeRangeSearch(age),
+        ),
+        doesWantAdvertisement: Boolean(Math.round(Math.random())), // Randomly choose if the client wants to receive advertisements
+      });
+
+      client.user = user;
+      client.group = user.userGroups[0].group;
+      client.city = await this.chooseRandomCity();
+      client.religionStyle = religionStyle;
+      await this.clientRepository.save(client);
+    }
+
+    this.logger.log('Finished seeding clients');
+  }
+
+  /**
+   * Generate a random israeli phone number
+   * @returns {string} a random israeli phone number
+   */
+  private generateIsraeliPhoneNumber(): string {
+    const prefixes = ['050', '052', '054', '055', '058'];
+    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const suffix = Math.floor(Math.random() * 10000000)
+      .toString()
+      .padStart(7, '0');
+    const phone = prefix + suffix;
+
+    if (this.generatedPhones.includes(phone)) {
+      return this.generateIsraeliPhoneNumber();
+    }
+
+    this.generatedPhones.push(phone);
+    return phone;
+  }
+
+  // write a function that will generate a random email witoout duplicates
+  private generateRandomEmail(): string {
+    const email = faker.internet.email();
+    if (this.generatedEmails.includes(email)) {
+      return this.generateRandomEmail();
+    }
+
+    this.generatedEmails.push(email);
+    return email;
+  }
+
+  /**
+   *  Choose a random city
+   * @returns {City} a random city
+   */
+  private async chooseRandomCity() {
+    return await this.cityRepository
+      .createQueryBuilder('city')
+      .orderBy('RAND()')
+      .getOne();
   }
 
   /**
