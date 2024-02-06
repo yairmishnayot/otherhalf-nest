@@ -5,6 +5,7 @@ import { Gender, ReligionStyles, Roles } from 'src/enums';
 import { ProjectsIds } from 'src/enums/projectsIds.enum';
 import { City } from 'src/modules/city/entities/city.entity';
 import { Client } from 'src/modules/client/entities/client.entity';
+import { Ethnicity } from 'src/modules/ethnicity/entities/ethnicity.entity';
 import { ReligionStyle } from 'src/modules/religion-style/entities/religion-style.entity';
 import { UserGroup } from 'src/modules/user-group/entities/user-group.entity';
 import { User } from 'src/modules/user/entities/user.entity';
@@ -14,7 +15,6 @@ import { Repository } from 'typeorm';
 export class ClientSeederService {
   private readonly logger: Logger = new Logger(ClientSeederService.name);
   private genderMale: number = Gender.Male;
-  private genderFemale: number = Gender.Female;
   private managerRoleId: number = Roles.Manager;
   private minAge: number = 18;
   private maxAge: number = 65;
@@ -46,6 +46,9 @@ export class ClientSeederService {
 
     @InjectRepository(ReligionStyle)
     private readonly religionStyleRepository: Repository<ReligionStyle>,
+
+    @InjectRepository(Ethnicity)
+    private readonly ethnicityRepository: Repository<Ethnicity>,
   ) {}
 
   async seed(numOfClients: number = 1) {
@@ -90,6 +93,7 @@ export class ClientSeederService {
       client.group = user.userGroups[0].group;
       client.city = await this.chooseRandomCity();
       client.religionStyle = religionStyle;
+      client.ethnicities = await this.chooseRandomEthnicities();
       await this.clientRepository.save(client);
     }
 
@@ -171,6 +175,16 @@ export class ClientSeederService {
       .andWhere('group.endAgeRange >= :age', { age })
       .orderBy('RAND()')
       .getOne();
+  }
+
+  // write a function that will fetch random number of ethnicities from DB, the number will be between 1 and 4
+  private async chooseRandomEthnicities() {
+    const numOfEthnicities = Math.floor(Math.random() * 4) + 1;
+    return await this.ethnicityRepository
+      .createQueryBuilder('ethnicity')
+      .orderBy('RAND()')
+      .limit(numOfEthnicities)
+      .getMany();
   }
 
   /**
