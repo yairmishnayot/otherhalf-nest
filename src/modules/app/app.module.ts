@@ -14,6 +14,7 @@ import { ProjectModule } from '../project/project.module';
 import { ReligionStyleModule } from '../religion-style/religion-style.module';
 import { RoleModule } from '../role/role.module';
 import { UserGroupModule } from '../user-group/user-group.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UserGroupModule } from '../user-group/user-group.module';
     ReligionStyleModule,
     RoleModule,
     UserGroupModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

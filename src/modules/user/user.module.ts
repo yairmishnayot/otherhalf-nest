@@ -12,6 +12,6 @@ import { UserGroup } from '../user-group/entities/user-group.entity';
   imports: [TypeOrmModule.forFeature([User, Role, Group, UserGroup])],
   controllers: [UserController],
   providers: [UserService, UserImportService],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, UserService],
 })
 export class UserModule {}
