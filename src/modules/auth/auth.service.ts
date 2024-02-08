@@ -1,12 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcryptjs';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly usersService: UserService) {}
 
-  async signIn(email: string, pass: string): Promise<any> {
+  async signIn(email: string, pass: string): Promise<Omit<User, 'password'>> {
     const user = await this.usersService.findByEmail(email);
 
     // Check if password matches
