@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserImportService } from './user-import/user-import.service';
 import { ImportUsersDTO } from './dto/import-users.dto';
+import { AuthGuard } from '../auth/auth.gurad';
 
 @Controller('users')
 export class UserController {
@@ -30,6 +32,7 @@ export class UserController {
     return await this.userImportService.importUsers(importUsersDto);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.userService.findAll();
