@@ -20,12 +20,12 @@ export class SeederService {
   ) {}
 
   async seed() {
-    // await this.citySeederService.seed();
-    // await this.roleSeederService.seed();
-    // await this.projectSeederService.seed();
-    // await this.groupSeederService.seed();
-    // await this.ethnicitySeederService.seed();
-    // await this.religionsStyleSeederService.seed();
-    await this.clientSeederService.seed();
+    await this.citySeederService.seed();
+    await this.roleSeederService.seed();
+    await this.projectSeederService.seed();
+    await this.groupSeederService.seed();
+    await this.ethnicitySeederService.seed();
+    await this.religionsStyleSeederService.seed();
+    await this.clientSeederService.seed(250);
   }
 }
