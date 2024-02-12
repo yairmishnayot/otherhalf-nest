@@ -73,7 +73,7 @@ export class User {
 
   @Column({
     type: 'boolean',
-    default: false,
+    default: true,
   })
   isFirstLogin: boolean;
 
