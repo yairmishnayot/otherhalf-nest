@@ -15,6 +15,8 @@ import { ReligionStyleModule } from '../religion-style/religion-style.module';
 import { RoleModule } from '../role/role.module';
 import { UserGroupModule } from '../user-group/user-group.module';
 import { AuthModule } from '../auth/auth.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseFormatInterceptor } from 'src/common/interceptors/response-format/response-format.interceptor';
 
 @Module({
   imports: [
@@ -46,6 +48,12 @@ import { AuthModule } from '../auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseFormatInterceptor,
+    },
+  ],
 })
 export class AppModule {}
