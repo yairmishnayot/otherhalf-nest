@@ -10,6 +10,7 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 @Unique(['email', 'phone'])
@@ -49,6 +50,7 @@ export class User {
     type: 'varchar',
     length: 100,
   })
+  @Exclude()
   password: string;
 
   @Column({

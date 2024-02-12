@@ -22,7 +22,7 @@ export class AuthService {
     }
 
     // destructuring the user object to remove the password property
-    const { password, ...result } = user;
+    // const { password, ...result } = user;
     // TODO: Generate a JWT and return it here
     // instead of the user object
     const payload = { sub: user.id, email: user.email };
@@ -30,7 +30,7 @@ export class AuthService {
     //TODO: update the last login date
     return {
       token: await this.jwtService.signAsync(payload),
-      user: result,
+      user: user,
     };
   }
 }
