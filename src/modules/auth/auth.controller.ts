@@ -31,7 +31,9 @@ export class AuthController {
     @Req() req: Request,
     @Body() resetPasswordDto: ResetPasswordDto,
   ) {
-    console.log((req as any).user);
-    console.log(resetPasswordDto);
+    return this.authService.resetPasswordUsingOldPassword(
+      resetPasswordDto,
+      (req as any).user.sub,
+    );
   }
 }
