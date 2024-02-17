@@ -36,6 +36,10 @@ export class AuthService {
 
     return {
       token: await this.jwtService.signAsync(payload),
+      refreshToken: await this.jwtService.signAsync(
+        { sub: user.id },
+        { expiresIn: '7d' },
+      ),
       user: user,
     };
   }

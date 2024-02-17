@@ -14,6 +14,7 @@ export class UserInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((data) => ({
         token: data.token,
+        refreshToken: data.refreshToken,
         user: plainToInstance(User, data.user),
       })),
     );
