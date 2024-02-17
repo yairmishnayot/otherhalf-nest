@@ -1,11 +1,13 @@
 import { IsEmail, IsPhoneNumber } from 'class-validator';
 import { UserGroup } from '../../user-group/entities/user-group.entity';
+import { RefreshToken } from '../../auth/entities/refresh-token.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   Index,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
@@ -99,4 +101,9 @@ export class User {
     cascade: ['remove'],
   })
   userGroups: UserGroup[];
+
+  @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user, {
+    cascade: ['remove'],
+  })
+  refreshToken: RefreshToken;
 }
