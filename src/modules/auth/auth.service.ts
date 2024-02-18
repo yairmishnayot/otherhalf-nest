@@ -6,6 +6,7 @@ import { SignInResponseDto } from './dto/sign-in-response.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,6 @@ export class AuthService {
 
   async signIn(email: string, pass: string): Promise<SignInResponseDto> {
     const user = await this.usersService.findByEmail(email);
-
     // Check if password matches
     if (!user) throw new UnauthorizedException();
 
@@ -42,5 +42,28 @@ export class AuthService {
       ),
       user: user,
     };
+  }
+
+  /**
+   * Reset password using old password
+   * @param passwordData
+   * @param userId
+   */
+  async resetPasswordUsingOldPassword(
+    passwordData: ResetPasswordDto,
+    userId: number,
+  ) {
+    const user = await this.usersService.findOne(userId);
+
+    if (
+      !user ||
+      !(await bcrypt.compare(passwordData.oldPassword, user?.password))
+    ) {
+      throw new UnauthorizedException();
+    }
+
+    user.password = await bcrypt.hash(passwordData.newPassword, 10);
+    user.isFirstLogin = false;
+    await this.userRepository.save(user);
   }
 }
