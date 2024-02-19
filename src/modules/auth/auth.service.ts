@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { RefreshToken } from './entities/refresh-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    @InjectRepository(RefreshToken)
+    private refreshTokenRepository: Repository<RefreshToken>,
   ) {}
 
   async signIn(email: string, pass: string): Promise<SignInResponseDto> {
@@ -36,10 +40,7 @@ export class AuthService {
 
     return {
       token: await this.jwtService.signAsync(payload),
-      refreshToken: await this.jwtService.signAsync(
-        { sub: user.id },
-        { expiresIn: '7d' },
-      ),
+      refreshToken: await this.generateRefreshToken(user),
       user: user,
     };
   }
@@ -65,5 +66,33 @@ export class AuthService {
     user.password = await bcrypt.hash(passwordData.newPassword, 10);
     user.isFirstLogin = false;
     await this.userRepository.save(user);
+  }
+
+  /**
+   * Generating refresh token for a given user
+   * @param user the user to generate the refresh token for
+   * @returns {Promise<string>}
+   */
+  async generateRefreshToken(user: User): Promise<string> {
+    const sevenDaysFromNow = new Date(
+      new Date().getTime() + 7 * 24 * 60 * 60 * 1000,
+    );
+
+    // save refresh token to DB
+    const refreshToken = await this.jwtService.signAsync(
+      { sub: user.id },
+      { expiresIn: '7d' },
+    );
+
+    const tokenEntity = this.refreshTokenRepository.create({
+      token: refreshToken,
+      expiryDate: sevenDaysFromNow,
+    });
+
+    tokenEntity.user = user;
+
+    await this.refreshTokenRepository.save(tokenEntity);
+
+    return refreshToken;
   }
 }
