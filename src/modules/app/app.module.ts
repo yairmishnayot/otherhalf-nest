@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { databaseConfig } from '../../config/database.config';
@@ -15,7 +15,7 @@ import { ReligionStyleModule } from '../religion-style/religion-style.module';
 import { RoleModule } from '../role/role.module';
 import { UserGroupModule } from '../user-group/user-group.module';
 import { AuthModule } from '../auth/auth.module';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ResponseFormatInterceptor } from 'src/common/interceptors/response-format/response-format.interceptor';
 import { AuthGuard } from '../auth/auth.gurad';
 
@@ -58,6 +58,14 @@ import { AuthGuard } from '../auth/auth.gurad';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
     },
   ],
 })

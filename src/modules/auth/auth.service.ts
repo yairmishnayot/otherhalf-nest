@@ -1,13 +1,20 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import * as bcrypt from 'bcryptjs';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { SignInResponseDto } from './dto/sign-in-response.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../user/entities/user.entity';
+import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
+import { User } from '../user/entities/user.entity';
+import { UserService } from '../user/user.service';
+import { RefreshTokenDTO } from './dto/refresh.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SignInResponseDto } from './dto/sign-in-response.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { RefreshResponseDto } from './dto/refresh-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,10 +40,11 @@ export class AuthService {
     user.lastLoggedAt = new Date();
     this.userRepository.save(user);
 
-    const payload = { sub: user.id, email: user.email };
+    // deleting all previous refresh tokens for the logged user
+    await this.deleteRefreshTokensForUser(user);
 
     return {
-      token: await this.jwtService.signAsync(payload),
+      token: await this.generateAccessToken(user),
       refreshToken: await this.generateRefreshToken(user),
       user: user,
     };
@@ -66,6 +74,17 @@ export class AuthService {
   }
 
   /**
+   * Generating access token for a user
+   * @param user
+   * @returns {Promise<string>}
+   */
+  async generateAccessToken(user: User): Promise<string> {
+    console.log(user);
+    const payload = { sub: user.id, email: user.email };
+    return await this.jwtService.signAsync(payload);
+  }
+
+  /**
    * Generating refresh token for a given user
    * @param user the user to generate the refresh token for
    * @returns {Promise<string>}
@@ -91,5 +110,59 @@ export class AuthService {
     await this.refreshTokenRepository.save(tokenEntity);
 
     return refreshToken;
+  }
+
+  /**
+   * Deleting all refresh tokens from a given user
+   * @param user
+   */
+  async deleteRefreshTokensForUser(user: User) {
+    await this.refreshTokenRepository
+      .createQueryBuilder()
+      .delete()
+      .from(RefreshToken)
+      .where('user_id = :userId', { userId: user.id })
+      .execute();
+  }
+
+  /**
+   * Generating a new access token for a user when he has a valid refresh token
+   * @param data
+   * @returns {Promise<RefreshResponseDto>}
+   */
+  async generateAccessTokenByRefreshToken(
+    data: RefreshTokenDTO,
+  ): Promise<RefreshResponseDto> {
+    // check for the refresh token in DB
+    let record = null;
+    try {
+      record = await this.refreshTokenRepository.findOneOrFail({
+        where: { token: data.refreshToken },
+        relations: ['user'],
+      });
+    } catch (error) {
+      // not found - throw error
+      throw new NotFoundException(`token does not exist in DB`);
+    }
+
+    // check that the token did not expire && that the token belong to the user
+    if (new Date() > record.expiryDate || record.user.id !== data.userId) {
+      // expired or not belong to the user - throw error
+      throw new ForbiddenException(`Token is not valid`);
+    }
+
+    // delete the token
+    this.deleteRefreshTokensForUser(record.user);
+
+    // generate new token
+    const newToken = await this.generateAccessToken(record.user);
+
+    // generate new refresh token && save the refresh token to db
+    const newRefreshToken = await this.generateRefreshToken(record.user);
+
+    return {
+      token: newToken,
+      refreshToken: newRefreshToken,
+    };
   }
 }

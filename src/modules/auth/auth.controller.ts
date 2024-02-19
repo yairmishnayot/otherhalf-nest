@@ -12,6 +12,7 @@ import { SignInDto } from './dto/sign-in.dto';
 import { UserInterceptor } from '../user/interceptors/user.interceptor';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Public } from 'src/common/decorators/public/public.decorator';
+import { RefreshTokenDTO } from './dto/refresh.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,6 +24,12 @@ export class AuthController {
   @Post('login')
   signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto.email, signInDto.password);
+  }
+
+  @Public()
+  @Post('refresh')
+  refresh(@Body() refreshTokenDto: RefreshTokenDTO) {
+    return this.authService.generateAccessTokenByRefreshToken(refreshTokenDto);
   }
 
   @HttpCode(HttpStatus.OK)
