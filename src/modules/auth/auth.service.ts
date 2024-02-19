@@ -32,10 +32,7 @@ export class AuthService {
 
     user.lastLoggedAt = new Date();
     this.userRepository.save(user);
-    // destructuring the user object to remove the password property
-    // const { password, ...result } = user;
-    // TODO: Generate a JWT and return it here
-    // instead of the user object
+
     const payload = { sub: user.id, email: user.email };
 
     return {
