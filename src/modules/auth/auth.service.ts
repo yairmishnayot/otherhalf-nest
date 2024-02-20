@@ -143,7 +143,7 @@ export class AuthService {
     }
 
     // check that the token did not expire && that the token belong to the user
-    if (new Date() > record.expiryDate || record.user.id !== data.userId) {
+    if (new Date() > record.expiryDate) {
       // expired or not belong to the user - throw error
       throw new ForbiddenException(`Refresh token is not valid`);
     }
