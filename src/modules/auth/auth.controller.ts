@@ -37,6 +37,7 @@ export class AuthController {
     return await this.authService.signIn(signInDto.email, signInDto.password);
   }
 
+  @UseInterceptors(UserInterceptor)
   @Public()
   @Post('refresh')
   async refresh(@Body() refreshTokenDto: RefreshTokenDTO) {

@@ -133,21 +133,19 @@ export class AuthService {
     data: RefreshTokenDTO,
   ): Promise<RefreshResponseDto> {
     // check for the refresh token in DB
-    let record = null;
-    try {
-      record = await this.refreshTokenRepository.findOneOrFail({
-        where: { token: data.refreshToken },
-        relations: ['user'],
-      });
-    } catch (error) {
-      // not found - throw error
-      throw new NotFoundException(`token does not exist in DB`);
+    const record = await this.refreshTokenRepository.findOne({
+      where: { token: data.refreshToken },
+      relations: ['user'],
+    });
+
+    if (!record) {
+      throw new ForbiddenException(`Refresh oken is not valid`);
     }
 
     // check that the token did not expire && that the token belong to the user
     if (new Date() > record.expiryDate || record.user.id !== data.userId) {
       // expired or not belong to the user - throw error
-      throw new ForbiddenException(`Token is not valid`);
+      throw new ForbiddenException(`Refresh token is not valid`);
     }
 
     // delete the token
@@ -162,6 +160,7 @@ export class AuthService {
     return {
       token: newToken,
       refreshToken: newRefreshToken,
+      user: record.user,
     };
   }
 }
