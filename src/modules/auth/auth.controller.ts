@@ -6,6 +6,7 @@ import {
   HttpStatus,
   UseInterceptors,
   Req,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
@@ -22,25 +23,35 @@ export class AuthController {
   @UseInterceptors(UserInterceptor)
   @Public()
   @Post('login')
-  signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+  async signIn(@Body() signInDto: SignInDto) {
+    return await this.authService.signIn(signInDto.email, signInDto.password);
   }
 
   @Public()
   @Post('refresh')
-  refresh(@Body() refreshTokenDto: RefreshTokenDTO) {
-    return this.authService.generateAccessTokenByRefreshToken(refreshTokenDto);
+  async refresh(@Body() refreshTokenDto: RefreshTokenDTO) {
+    return await this.authService.generateAccessTokenByRefreshToken(
+      refreshTokenDto,
+    );
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('reset-password')
-  resetPassword(
+  async resetPassword(
     @Req() req: Request,
     @Body() resetPasswordDto: ResetPasswordDto,
   ) {
-    return this.authService.resetPasswordUsingOldPassword(
+    return await this.authService.resetPasswordUsingOldPassword(
       resetPasswordDto,
       (req as any).user.sub,
     );
+  }
+
+  @Get('logout')
+  async logout(@Req() req: Request) {
+    this.authService.deleteRefreshTokensForUser((req as any).user.sub);
+    return {
+      message: 'User logged out successfully',
+    };
   }
 }

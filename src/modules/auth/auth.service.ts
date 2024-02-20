@@ -41,7 +41,7 @@ export class AuthService {
     this.userRepository.save(user);
 
     // deleting all previous refresh tokens for the logged user
-    await this.deleteRefreshTokensForUser(user);
+    await this.deleteRefreshTokensForUser(user.id);
 
     return {
       token: await this.generateAccessToken(user),
@@ -79,7 +79,6 @@ export class AuthService {
    * @returns {Promise<string>}
    */
   async generateAccessToken(user: User): Promise<string> {
-    console.log(user);
     const payload = { sub: user.id, email: user.email };
     return await this.jwtService.signAsync(payload);
   }
@@ -116,12 +115,12 @@ export class AuthService {
    * Deleting all refresh tokens from a given user
    * @param user
    */
-  async deleteRefreshTokensForUser(user: User) {
+  async deleteRefreshTokensForUser(userId: number) {
     await this.refreshTokenRepository
       .createQueryBuilder()
       .delete()
       .from(RefreshToken)
-      .where('user_id = :userId', { userId: user.id })
+      .where('user_id = :userId', { userId })
       .execute();
   }
 
@@ -152,7 +151,7 @@ export class AuthService {
     }
 
     // delete the token
-    this.deleteRefreshTokensForUser(record.user);
+    this.deleteRefreshTokensForUser(record.user.id);
 
     // generate new token
     const newToken = await this.generateAccessToken(record.user);
