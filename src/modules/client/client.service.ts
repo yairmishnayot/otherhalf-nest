@@ -25,6 +25,7 @@ export class ClientService {
     return await this.clientRepository
       .createQueryBuilder()
       .where('user_id = :userId', { userId })
+      .innerJoinAndSelect('client.city', 'city')
       .getMany();
   }
 
@@ -36,7 +37,7 @@ export class ClientService {
   async findOne(id: number, userId: number): Promise<Client> {
     const client: Client = await this.clientRepository.findOne({
       where: { id: id },
-      relations: ['user'],
+      relations: ['user', 'city'],
     });
 
     if (client.user.id !== userId) {
