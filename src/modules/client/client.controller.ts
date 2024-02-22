@@ -6,12 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 
-@Controller('client')
+@Controller('clients')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
@@ -20,9 +21,9 @@ export class ClientController {
     return this.clientService.create(createClientDto);
   }
 
-  @Get()
-  findAll() {
-    return this.clientService.findAll();
+  @Get('')
+  findAll(@Req() req: Request) {
+    return this.clientService.findAllForUser((req as any).user.sub);
   }
 
   @Get(':id')
