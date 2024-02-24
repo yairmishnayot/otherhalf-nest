@@ -37,7 +37,7 @@ export class ClientService {
   async findOne(id: number, userId: number): Promise<Client> {
     const client: Client = await this.clientRepository.findOne({
       where: { id: id },
-      relations: ['user', 'city'],
+      relations: ['user', 'city', 'ethnicities'],
     });
 
     if (client.user.id !== userId) {
