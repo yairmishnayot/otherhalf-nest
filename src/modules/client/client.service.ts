@@ -23,7 +23,7 @@ export class ClientService {
    */
   async findAllForUser(userId: number): Promise<Client[]> {
     return await this.clientRepository
-      .createQueryBuilder()
+      .createQueryBuilder('client')
       .where('user_id = :userId', { userId })
       .innerJoinAndSelect('client.city', 'city')
       .getMany();
