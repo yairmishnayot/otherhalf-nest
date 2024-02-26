@@ -18,6 +18,7 @@ import { AuthModule } from '../auth/auth.module';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ResponseFormatInterceptor } from 'src/common/interceptors/response-format/response-format.interceptor';
 import { AuthGuard } from '../auth/auth.gurad';
+import { ClientInterestModule } from '../client-interest/client-interest.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { AuthGuard } from '../auth/auth.gurad';
     RoleModule,
     UserGroupModule,
     AuthModule,
+    ClientInterestModule,
   ],
   controllers: [AppController],
   providers: [
