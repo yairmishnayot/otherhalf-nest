@@ -7,16 +7,20 @@ import {
   Param,
   Delete,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientInterestService } from '../client-interest/client-interest.service';
+import { ClientGuard } from './guards/client/client.guard';
 
 @Controller('clients')
 export class ClientController {
-  constructor(private readonly clientService: ClientService,
-     private readonly clientInterestService: ClientInterestService) {}
+  constructor(
+    private readonly clientService: ClientService,
+    private readonly clientInterestService: ClientInterestService,
+  ) {}
 
   @Post()
   create(@Body() createClientDto: CreateClientDto) {
@@ -43,6 +47,7 @@ export class ClientController {
     return this.clientService.remove(+id);
   }
 
+  @UseGuards(ClientGuard)
   @Get(':id/interests')
   getClientInterests(@Param('id') id: string) {
     return this.clientInterestService.findAllForClient(+id);
