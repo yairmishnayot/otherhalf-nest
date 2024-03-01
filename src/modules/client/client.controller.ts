@@ -52,4 +52,10 @@ export class ClientController {
   getClientInterests(@Param('id') id: string) {
     return this.clientInterestService.findAllForClient(+id);
   }
+
+  @UseGuards(ClientGuard)
+  @Post(':id/interests')
+  createClientInterest(@Param('id') id: string, @Body() body: any) {
+    return this.clientInterestService.create(body);
+  }
 }
