@@ -12,6 +12,10 @@ export class ClientInterestService {
     return `This action returns all clientInterest`;
   }
 
+  findAllForClient(clientId: number){
+    return `This action returns all clientInterest for client ${clientId}`;
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} clientInterest`;
   }

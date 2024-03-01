@@ -11,10 +11,12 @@ import {
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { ClientInterestService } from '../client-interest/client-interest.service';
 
 @Controller('clients')
 export class ClientController {
-  constructor(private readonly clientService: ClientService) {}
+  constructor(private readonly clientService: ClientService,
+     private readonly clientInterestService: ClientInterestService) {}
 
   @Post()
   create(@Body() createClientDto: CreateClientDto) {
@@ -39,5 +41,10 @@ export class ClientController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.clientService.remove(+id);
+  }
+
+  @Get(':id/interests')
+  getClientInterests(@Param('id') id: string) {
+    return this.clientInterestService.findAllForClient(+id);
   }
 }

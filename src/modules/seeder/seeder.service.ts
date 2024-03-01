@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { CitySeederService } from './city-seeder/city-seeder.service';
 import { RoleSeederService } from './role-seeder/role-seeder.service';
 import { GroupSeederService } from './group-seeder/group-seeder/group-seeder.service';
+import { UserSeederService } from './user-seeder/user-seeder.service';
 
 @Injectable()
 export class SeederService {
@@ -14,6 +15,7 @@ export class SeederService {
     private readonly roleSeederService: RoleSeederService,
     private readonly projectSeederService: ProjectSeederService,
     private readonly groupSeederService: GroupSeederService,
+    private readonly userSeederService: UserSeederService,
     private readonly ethnicitySeederService: EthnicitiesSeederService,
     private readonly religionsStyleSeederService: ReligionsStyleSeederService,
     private readonly clientSeederService: ClientSeederService,
@@ -26,6 +28,7 @@ export class SeederService {
     await this.groupSeederService.seed();
     await this.ethnicitySeederService.seed();
     await this.religionsStyleSeederService.seed();
-    await this.clientSeederService.seed(250);
+    await this.userSeederService.seed();
+    // await this.clientSeederService.seed(250);
   }
 }
