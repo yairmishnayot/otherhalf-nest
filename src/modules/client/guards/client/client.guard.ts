@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Observable } from 'rxjs';
 import { Client } from '../../entities/client.entity';
 import { Repository } from 'typeorm';
 
@@ -21,6 +20,6 @@ export class ClientGuard implements CanActivate {
     const clientCount = await this.clientRepository.count({
       where: { id: clientId, user: { id: user.sub } },
     });
-    return clientCount > 1;
+    return clientCount > 0;
   }
 }

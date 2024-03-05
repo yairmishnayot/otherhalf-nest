@@ -32,6 +32,7 @@ export class ClientController {
     return this.clientService.findAllForUser((req as any).user.sub);
   }
 
+  @UseGuards(ClientGuard)
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: Request) {
     return this.clientService.findOne(+id, (req as any).user.sub);
