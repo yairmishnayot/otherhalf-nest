@@ -38,11 +38,13 @@ export class ClientController {
     return this.clientService.findOne(+id, (req as any).user.sub);
   }
 
+  @UseGuards(ClientGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
     return this.clientService.update(+id, updateClientDto);
   }
 
+  @UseGuards(ClientGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.clientService.remove(+id);

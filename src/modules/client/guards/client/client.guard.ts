@@ -20,6 +20,7 @@ export class ClientGuard implements CanActivate {
     const clientCount = await this.clientRepository.count({
       where: { id: clientId, user: { id: user.sub } },
     });
+
     return clientCount > 0;
   }
 }
