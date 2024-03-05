@@ -1,3 +1,4 @@
+import { CreateClientInterestDto } from './../client-interest/dto/create-client-interest.dto';
 import {
   Controller,
   Get,
@@ -58,7 +59,10 @@ export class ClientController {
 
   @UseGuards(ClientGuard)
   @Post(':id/interests')
-  createClientInterest(@Param('id') id: string, @Body() body: any) {
-    return this.clientInterestService.create(body);
+  createClientInterest(
+    @Param('id') id: string,
+    @Body() createClientInterestDto: CreateClientInterestDto,
+  ) {
+    return this.clientInterestService.create(createClientInterestDto);
   }
 }
