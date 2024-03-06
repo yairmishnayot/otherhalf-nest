@@ -20,6 +20,12 @@ export class ClientInterestService {
     createClientInterestDto: CreateClientInterestDto,
   ): Promise<ClientInterest> {
     try {
+      if (
+        createClientInterestDto.clientId ===
+        createClientInterestDto.interestedInClientId
+      ) {
+        throw new Error('invalid data');
+      }
       const client = await this.clientRepository.findOneBy({
         id: createClientInterestDto.clientId,
       });
