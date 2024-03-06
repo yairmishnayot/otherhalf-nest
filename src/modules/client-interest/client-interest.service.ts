@@ -4,16 +4,40 @@ import { UpdateClientInterestDto } from './dto/update-client-interest.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClientInterest } from './entities/client-interest.entity';
 import { Repository } from 'typeorm';
+import { Client } from '../client/entities/client.entity';
 
 @Injectable()
 export class ClientInterestService {
   constructor(
     @InjectRepository(ClientInterest)
     private clientInterestRepository: Repository<ClientInterest>,
+
+    @InjectRepository(Client)
+    private clientRepository: Repository<Client>,
   ) {}
 
-  create(createClientInterestDto: CreateClientInterestDto) {
-    return 'This action adds a new clientInterest';
+  async create(
+    createClientInterestDto: CreateClientInterestDto,
+  ): Promise<ClientInterest> {
+    try {
+      const client = await this.clientRepository.findOneBy({
+        id: createClientInterestDto.clientId,
+      });
+      const intrestedInClient = await this.clientRepository.findOneBy({
+        id: createClientInterestDto.interestedInClientId,
+      });
+      const clientInterest = this.clientInterestRepository.create({
+        client,
+        intrestedInClient,
+      });
+
+      return await this.clientInterestRepository.save(clientInterest);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new Error('duplicated record');
+      }
+      throw error;
+    }
   }
 
   findAll() {

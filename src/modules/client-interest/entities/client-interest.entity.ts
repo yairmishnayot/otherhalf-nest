@@ -7,10 +7,13 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
+import { ClientInterestStatuses } from '../../../enums/client-interest-statuses.enum';
 
 @Entity('clients_interests')
+@Unique(['client', 'intrestedInClient'])
 export class ClientInterest {
   @PrimaryGeneratedColumn()
   id: number;
@@ -23,10 +26,10 @@ export class ClientInterest {
   @JoinColumn({ name: 'intrested_in_client_id' })
   intrestedInClient: Client;
 
-  @Column()
+  @Column({ default: ClientInterestStatuses.Waiting })
   @IsInt()
   @Min(1)
-  @Max(5)
+  @Max(4)
   status: number;
 
   @CreateDateColumn({
