@@ -1,7 +1,15 @@
 import { fakerHE as faker } from '@faker-js/faker';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Gender, ReligionStyles, Roles } from 'src/enums';
+import {
+  Gender,
+  RelationshipGoal,
+  RelationshipStatus,
+  ReligionStyles,
+  Roles,
+  ShabbathKosher,
+  ShmiratNegia,
+} from 'src/enums';
 import { ProjectsIds } from 'src/enums/projectsIds.enum';
 import { City } from 'src/modules/city/entities/city.entity';
 import { Client } from 'src/modules/client/entities/client.entity';
@@ -72,7 +80,12 @@ export class ClientSeederService {
         firstName: this.chooseFirstName(),
         lastName: faker.person.lastName(),
         email: this.generateRandomEmail(),
+        gender: this.gender,
         phone: this.generateIsraeliPhoneNumber(),
+        relationshipStatus: RelationshipStatus.Single,
+        relationshipGoal: RelationshipGoal.Wedding,
+        shabbathKosher: ShabbathKosher.Yes,
+        doesShomerNegia: ShmiratNegia.Yes,
         age,
         birthDate: this.generateBirthdate(age),
         height: this.chooseHeight(),
@@ -138,7 +151,7 @@ export class ClientSeederService {
   private async chooseRandomCity() {
     return await this.cityRepository
       .createQueryBuilder('city')
-      .orderBy('RAND()')
+      .orderBy('RANDOM()')
       .getOne();
   }
 
@@ -173,7 +186,7 @@ export class ClientSeederService {
       .andWhere('group.projectId = :projectId', { projectId })
       .andWhere('group.startAgeRange <= :age', { age })
       .andWhere('group.endAgeRange >= :age', { age })
-      .orderBy('RAND()')
+      .orderBy('RANDOM()')
       .getOne();
   }
 
@@ -182,7 +195,7 @@ export class ClientSeederService {
     const numOfEthnicities = Math.floor(Math.random() * 4) + 1;
     return await this.ethnicityRepository
       .createQueryBuilder('ethnicity')
-      .orderBy('RAND()')
+      .orderBy('RANDOM()')
       .limit(numOfEthnicities)
       .getMany();
   }
