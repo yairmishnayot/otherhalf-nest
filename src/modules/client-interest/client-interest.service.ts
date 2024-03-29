@@ -50,10 +50,26 @@ export class ClientInterestService {
     return `This action returns all clientInterest`;
   }
 
-  findAllForClient(clientId: number) {
-    return this.clientInterestRepository.find({
+  async findAllForClient(clientId: number) {
+    return await this.clientInterestRepository.find({
       where: { intrestedInClient: { id: clientId } },
     });
+  }
+
+  async findAllClientInterestsInOtherClients(clientId: number) {
+    return await this.clientInterestRepository
+      .createQueryBuilder('clients_interests')
+      .select('clients_interests.createdAt as createdAt')
+      .addSelect([
+        'clients_interests.id as id',
+        'clients_interests.client',
+        'clients_interests.intrestedInClient',
+        'clients_interests.status as status',
+        'clients_interests.updatedAt as updatedAt',
+      ])
+      .where('clients_interests.client = :clientId', { clientId })
+      .orderBy('clients_interests.createdAt')
+      .getRawMany();
   }
 
   findOne(id: number) {

@@ -65,4 +65,10 @@ export class ClientController {
   ) {
     return this.clientInterestService.create(createClientInterestDto);
   }
+
+  @UseGuards(ClientGuard)
+  @Get(':id/interests-in-others')
+  getClientInterestsInOthers(@Param('id') id: string) {
+    return this.clientInterestService.findAllClientInterestsInOtherClients(+id);
+  }
 }
