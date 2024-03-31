@@ -68,7 +68,15 @@ export class ClientController {
 
   @UseGuards(ClientGuard)
   @Get(':id/interests-in-others')
-  getClientInterestsInOthers(@Param('id') id: string) {
-    return this.clientInterestService.findAllClientInterestsInOtherClients(+id);
+  async getClientInterestsInOthers(@Param('id') id: string) {
+    return await this.clientInterestService.findAllClientInterestsInOtherClients(
+      +id,
+    );
+  }
+
+  @UseGuards(ClientGuard)
+  @Delete(':id/interests/:interestId')
+  async delete(@Param('interestId') interestId: string) {
+    return await this.clientInterestService.delete(+interestId);
   }
 }
