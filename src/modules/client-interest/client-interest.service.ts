@@ -32,6 +32,17 @@ export class ClientInterestService {
       const intrestedInClient = await this.clientRepository.findOneBy({
         id: createClientInterestDto.interestedInClientId,
       });
+
+      // Check if there is a record with the same data
+      const existingRecord = await this.clientInterestRepository.findOneBy({
+        client,
+        intrestedInClient,
+      });
+
+      if (existingRecord) {
+        throw new Error('duplicated record');
+      }
+
       const clientInterest = this.clientInterestRepository.create({
         client,
         intrestedInClient,
