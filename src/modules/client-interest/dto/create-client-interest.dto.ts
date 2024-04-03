@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateClientInterestDto {
   @IsNotEmpty()
@@ -6,6 +6,6 @@ export class CreateClientInterestDto {
   clientId: number;
 
   @IsNotEmpty()
-  @IsNumber()
-  interestedInClientId: number;
+  @IsArray()
+  interestedClients: Array<number>;
 }

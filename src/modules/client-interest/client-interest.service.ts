@@ -16,45 +16,49 @@ export class ClientInterestService {
     private clientRepository: Repository<Client>,
   ) {}
 
-  async create(
-    createClientInterestDto: CreateClientInterestDto,
-  ): Promise<ClientInterest> {
-    try {
-      if (
-        createClientInterestDto.clientId ===
-        createClientInterestDto.interestedInClientId
-      ) {
-        throw new Error('invalid data');
-      }
+  /**
+   *  Create a new client interest record
+   * @param createClientInterestDto
+   * @returns
+   */
+  async create(createClientInterestDto: CreateClientInterestDto): Promise<any> {
+    // loop through the interestedClients array and create a record for each
+    const successfullyCreatedRecords = [];
+    const failedRecordsClientIds = [];
+
+    for (const interestedInClientId of createClientInterestDto.interestedClients) {
       const client = await this.clientRepository.findOneBy({
         id: createClientInterestDto.clientId,
       });
-      const intrestedInClient = await this.clientRepository.findOneBy({
-        id: createClientInterestDto.interestedInClientId,
+
+      const intrestedClient = await this.clientRepository.findOneBy({
+        id: interestedInClientId,
       });
 
       // Check if there is a record with the same data
       const existingRecord = await this.clientInterestRepository.findOneBy({
-        client,
-        intrestedInClient,
+        client: intrestedClient,
+        intrestedInClient: client,
       });
 
-      if (existingRecord) {
-        throw new Error('duplicated record');
+      if (existingRecord || client.id === intrestedClient.id) {
+        failedRecordsClientIds.push(interestedInClientId);
+        continue;
       }
 
       const clientInterest = this.clientInterestRepository.create({
-        client,
-        intrestedInClient,
+        client: intrestedClient,
+        intrestedInClient: client,
       });
+      await this.clientInterestRepository.save(clientInterest);
 
-      return await this.clientInterestRepository.save(clientInterest);
-    } catch (error) {
-      if (error.code === 'ER_DUP_ENTRY') {
-        throw new Error('duplicated record');
-      }
-      throw error;
+      successfullyCreatedRecords.push(clientInterest);
     }
+
+    return {
+      successfullyCreatedRecords,
+      failedRecordsClientIds,
+    };
   }
 
   findAll() {
