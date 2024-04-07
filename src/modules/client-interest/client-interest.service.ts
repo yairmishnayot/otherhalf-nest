@@ -65,10 +65,16 @@ export class ClientInterestService {
     return `This action returns all clientInterest`;
   }
 
+  /**
+   * Find all interests in a specific client
+   * @param clientId
+   * @returns
+   */
   async findAllForClient(clientId: number) {
     return await this.clientInterestRepository
       .createQueryBuilder('clients_interests')
       .innerJoinAndSelect('clients_interests.client', 'intrestedInClient')
+      .innerJoinAndSelect('intrestedInClient.user', 'user')
       .where('clients_interests.intrestedInClient = :clientId', { clientId })
       .getMany();
   }
