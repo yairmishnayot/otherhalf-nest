@@ -6,6 +6,7 @@ import { ClientInterest } from './entities/client-interest.entity';
 import { Repository } from 'typeorm';
 import { Client } from '../client/entities/client.entity';
 import { CreateClientInterestResponseDto } from './dto/create-client-interest-response.dto';
+import { ClientInterestStatuses } from 'src/enums/client-interest-statuses.enum';
 
 @Injectable()
 export class ClientInterestService {
@@ -102,6 +103,15 @@ export class ClientInterestService {
 
   update(id: number, updateClientInterestDto: UpdateClientInterestDto) {
     return `This action updates a #${id} clientInterest`;
+  }
+
+  async changeStatus(id: number, status: ClientInterestStatuses) {
+    const clientInterest = await this.clientInterestRepository.findOne({
+      where: { id },
+    });
+    clientInterest.status = status;
+    await this.clientInterestRepository.save(clientInterest);
+    return clientInterest;
   }
 
   async delete(id: number) {

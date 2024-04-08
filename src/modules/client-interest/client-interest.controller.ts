@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
 import { ClientInterestService } from './client-interest.service';
 import { CreateClientInterestDto } from './dto/create-client-interest.dto';
 import { UpdateClientInterestDto } from './dto/update-client-interest.dto';

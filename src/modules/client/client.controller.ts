@@ -15,6 +15,7 @@ import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientInterestService } from '../client-interest/client-interest.service';
 import { ClientGuard } from './guards/client/client.guard';
+import { changeClientInterestStatusDto } from '../client-interest/dto/change-client-interest-status.dto';
 
 @Controller('clients')
 export class ClientController {
@@ -61,6 +62,15 @@ export class ClientController {
   @Get(':id/interests/:interestId')
   getClientInterest(@Param('interestId') interestId: string) {
     return this.clientInterestService.findOne(+interestId);
+  }
+
+  @UseGuards(ClientGuard)
+  @Post(':id/interests/:interestId/status')
+  changeClientInterestStatus(
+    @Param('interestId') interestId: string,
+    @Body() data: changeClientInterestStatusDto,
+  ) {
+    return this.clientInterestService.changeStatus(+interestId, data.status);
   }
 
   @UseGuards(ClientGuard)
