@@ -58,6 +58,12 @@ export class ClientController {
   }
 
   @UseGuards(ClientGuard)
+  @Get(':id/interests/:interestId')
+  getClientInterest(@Param('interestId') interestId: string) {
+    return this.clientInterestService.findOne(+interestId);
+  }
+
+  @UseGuards(ClientGuard)
   @Post(':id/interests')
   createClientInterest(
     @Param('id') id: string,

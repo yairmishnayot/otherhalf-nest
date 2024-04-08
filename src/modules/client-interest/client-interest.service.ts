@@ -91,8 +91,13 @@ export class ClientInterestService {
       .getMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} clientInterest`;
+  async findOne(id: number) {
+    return await this.clientInterestRepository
+      .createQueryBuilder('clients_interests')
+      .innerJoinAndSelect('clients_interests.client', 'intrestedInClient')
+      .innerJoinAndSelect('intrestedInClient.user', 'user')
+      .where('clients_interests.id = :id', { id })
+      .getOne();
   }
 
   update(id: number, updateClientInterestDto: UpdateClientInterestDto) {
