@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ClientInterest } from './entities/client-interest.entity';
 import { Repository } from 'typeorm';
 import { Client } from '../client/entities/client.entity';
+import { CreateClientInterestResponseDto } from './dto/create-client-interest-response.dto';
 
 @Injectable()
 export class ClientInterestService {
@@ -21,7 +22,9 @@ export class ClientInterestService {
    * @param createClientInterestDto
    * @returns
    */
-  async create(createClientInterestDto: CreateClientInterestDto): Promise<any> {
+  async create(
+    createClientInterestDto: CreateClientInterestDto,
+  ): Promise<CreateClientInterestResponseDto> {
     // loop through the interestedClients array and create a record for each
     const successfullyCreatedRecords = [];
     const failedRecordsClientIds = [];

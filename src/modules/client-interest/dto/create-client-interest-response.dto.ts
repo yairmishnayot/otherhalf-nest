@@ -1,9 +1,10 @@
 import { IsArray, IsNotEmpty } from 'class-validator';
+import { ClientInterest } from '../entities/client-interest.entity';
 
 export class CreateClientInterestResponseDto {
   @IsNotEmpty()
   @IsArray()
-  successfullyCreatedRecords: Array<any>;
+  successfullyCreatedRecords: Array<ClientInterest>;
 
   @IsArray()
   failedRecordsClientIds: Array<number>;
