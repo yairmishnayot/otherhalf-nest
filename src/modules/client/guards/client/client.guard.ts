@@ -10,6 +10,7 @@ export class ClientGuard implements CanActivate {
     private clientRepository: Repository<Client>,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    console.log('ClientGuard');
     const request = context.switchToHttp().getRequest();
     const user = request.user;
     if (user.isAdmin) {
