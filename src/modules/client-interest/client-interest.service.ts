@@ -79,6 +79,7 @@ export class ClientInterestService {
       .createQueryBuilder('clients_interests')
       .innerJoinAndSelect('clients_interests.client', 'intrestedInClient')
       .innerJoinAndSelect('intrestedInClient.ethnicities', 'ethnicities')
+      .innerJoinAndSelect('intrestedInClient.city', 'city')
       .innerJoinAndSelect('intrestedInClient.user', 'user')
       .where('clients_interests.intrestedInClient = :clientId', { clientId })
       .getMany();
