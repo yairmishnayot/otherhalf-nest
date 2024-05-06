@@ -78,6 +78,7 @@ export class ClientInterestService {
     return await this.clientInterestRepository
       .createQueryBuilder('clients_interests')
       .innerJoinAndSelect('clients_interests.client', 'intrestedInClient')
+      .innerJoinAndSelect('intrestedInClient.ethnicities', 'ethnicities')
       .innerJoinAndSelect('intrestedInClient.user', 'user')
       .where('clients_interests.intrestedInClient = :clientId', { clientId })
       .getMany();
