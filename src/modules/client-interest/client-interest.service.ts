@@ -81,6 +81,7 @@ export class ClientInterestService {
       .innerJoinAndSelect('intrestedInClient.ethnicities', 'ethnicities')
       .innerJoinAndSelect('intrestedInClient.city', 'city')
       .innerJoinAndSelect('intrestedInClient.user', 'user')
+      .innerJoinAndSelect('intrestedInClient.religionStyle', 'religionStyle')
       .where('clients_interests.intrestedInClient = :clientId', { clientId })
       .getMany();
   }
