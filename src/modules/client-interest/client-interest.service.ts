@@ -74,8 +74,8 @@ export class ClientInterestService {
    * @param clientId
    * @returns
    */
-  async findAllForClient(clientId: number) {
-    return await this.clientInterestRepository
+  findAllForClient(clientId: number) {
+    return this.clientInterestRepository
       .createQueryBuilder('clients_interests')
       .innerJoinAndSelect('clients_interests.client', 'intrestedInClient')
       .innerJoinAndSelect('intrestedInClient.ethnicities', 'ethnicities')
@@ -83,6 +83,9 @@ export class ClientInterestService {
       .innerJoinAndSelect('intrestedInClient.user', 'user')
       .innerJoinAndSelect('intrestedInClient.religionStyle', 'religionStyle')
       .where('clients_interests.intrestedInClient = :clientId', { clientId })
+      .andWhere('clients_interests.status = :status', {
+        status: ClientInterestStatuses.Waiting,
+      })
       .getMany();
   }
 
