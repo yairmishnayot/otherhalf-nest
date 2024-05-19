@@ -95,4 +95,10 @@ export class ClientController {
   async delete(@Param('interestId') interestId: string) {
     return await this.clientInterestService.delete(+interestId);
   }
+
+  @UseGuards(ClientGuard)
+  @Get(':id/allowed-interests')
+  async getClientsThatCanInterestInClient(@Param('id') id: string) {
+    return await this.clientInterestService.getAllowedClients(+id);
+  }
 }

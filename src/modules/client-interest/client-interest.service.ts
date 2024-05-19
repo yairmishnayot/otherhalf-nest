@@ -124,4 +124,31 @@ export class ClientInterestService {
     await this.clientInterestRepository.delete(id);
     return `Client interest with id ${id} has been deleted`;
   }
+
+  /**
+   * Get a list of clients that are allowed to be interested in this client
+   * @param clientId
+   */
+  async getAllowedClients(clientId: number) {
+    const client = await this.clientRepository.findOne({
+      where: {
+        id: clientId,
+      },
+      relations: ['group'],
+    });
+
+    const relevantGroupIds = [
+      client.group.id - 1,
+      client.group.id,
+      client.group.id + 1,
+    ];
+    return await this.clientRepository
+      .createQueryBuilder('clients')
+      .innerJoin('clients.group', 'groups')
+      .where('clients.gender <> :clientGender', { clientGender: client.gender })
+      .andWhere('groups.id IN (:...groupIds)', { groupIds: relevantGroupIds })
+      .andWhere('groups.startAgeRange IS NOT NULL')
+      .andWhere('groups.endAgeRange IS NOT NULL')
+      .getMany();
+  }
 }
