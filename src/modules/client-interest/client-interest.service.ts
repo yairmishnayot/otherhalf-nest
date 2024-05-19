@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { Client } from '../client/entities/client.entity';
 import { CreateClientInterestResponseDto } from './dto/create-client-interest-response.dto';
 import { ClientInterestStatuses } from 'src/enums/client-interest-statuses.enum';
+import { ProjectsIds } from '../../enums/projectsIds.enum';
 
 @Injectable()
 export class ClientInterestService {
@@ -134,21 +135,29 @@ export class ClientInterestService {
       where: {
         id: clientId,
       },
-      relations: ['group'],
+      relations: ['group', 'group.project'],
     });
 
-    const relevantGroupIds = [
-      client.group.id - 1,
-      client.group.id,
-      client.group.id + 1,
-    ];
-    return await this.clientRepository
-      .createQueryBuilder('clients')
-      .innerJoin('clients.group', 'groups')
-      .where('clients.gender <> :clientGender', { clientGender: client.gender })
-      .andWhere('groups.id IN (:...groupIds)', { groupIds: relevantGroupIds })
-      .andWhere('groups.startAgeRange IS NOT NULL')
-      .andWhere('groups.endAgeRange IS NOT NULL')
-      .getMany();
+    if (client.group.project.id === ProjectsIds.OtherHalf) {
+      const relevantGroupIds = [
+        client.group.id - 1,
+        client.group.id,
+        client.group.id + 1,
+        9, // PROJECT SHAHAM ID
+      ];
+
+      return await this.clientRepository
+        .createQueryBuilder('clients')
+        .innerJoin('clients.group', 'groups')
+        .where('clients.gender <> :clientGender', {
+          clientGender: client.gender,
+        })
+        .andWhere('groups.id IN (:...groupIds)', { groupIds: relevantGroupIds })
+        .andWhere('groups.startAgeRange IS NOT NULL')
+        .andWhere('groups.endAgeRange IS NOT NULL')
+        .getMany();
+    }
+
+    return [];
   }
 }
