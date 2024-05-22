@@ -21,7 +21,8 @@
     "migrate": "npx ts-node ./node_modules/typeorm/cli.js migration:run -d src/data-source.ts",
     "migration:generate": "cross-env MIGRATION_NAME=$npm_config_name ts-node src/common/scripts/generate-migration.ts",
     "migration:revert": "npx ts-node ./node_modules/typeorm/cli.js migration:revert -d src/data-source.ts",
-    "seed": "ts-node -r tsconfig-paths/register src/modules/seeder/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register src/modules/seeder/seed.ts",
+    "init": "npm run migrate && npm run seed"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
