@@ -149,6 +149,7 @@ export class ClientInterestService {
       return await this.clientRepository
         .createQueryBuilder('clients')
         .innerJoin('clients.group', 'groups')
+        .innerJoinAndSelect('clients.user', 'user')
         .where('clients.gender <> :clientGender', {
           clientGender: client.gender,
         })
