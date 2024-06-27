@@ -101,7 +101,7 @@ export class Client {
   @IsInt()
   age: number;
 
-  @Column('decimal')
+  @Column('decimal', { precision: 10, scale: 2 })
   @IsDecimal()
   height: number;
 
