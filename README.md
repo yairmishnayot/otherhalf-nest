@@ -10,3 +10,12 @@ Now, for the steps:
 - Run ```npm run init```
 - Wait for the migrations and seeders to finish
 - Now you can choose any of the users in the users table, and log in with its default password **123456**
+
+## Migrations
+### Creating Migrations
+- Go into the "otherhalf-nest" container
+- run ```npm run migration:generate --name=<your_migration_name>```
+
+### Running Migrations
+- Go into the "otherhalf-nest" container
+- run ```npm run migrate```
