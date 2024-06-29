@@ -36,23 +36,24 @@ export class ClientInterestService {
         id: createClientInterestDto.clientId,
       });
 
-      const intrestedClient = await this.clientRepository.findOneBy({
-        id: interestedInClientId,
+      const interestedClient = await this.clientRepository.findOne({
+        where: { id: interestedInClientId },
+        relations: ['user'],
       });
 
       // Check if there is a record with the same data
       const existingRecord = await this.clientInterestRepository.findOneBy({
-        client: intrestedClient,
+        client: interestedClient,
         intrestedInClient: client,
       });
 
-      if (existingRecord || client.id === intrestedClient.id) {
+      if (existingRecord || client.id === interestedClient.id) {
         failedRecordsClientIds.push(interestedInClientId);
         continue;
       }
 
       const clientInterest = this.clientInterestRepository.create({
-        client: intrestedClient,
+        client: interestedClient,
         intrestedInClient: client,
       });
       await this.clientInterestRepository.save(clientInterest);
