@@ -157,6 +157,7 @@ export class ClientInterestService {
         .andWhere('groups.id IN (:...groupIds)', { groupIds: relevantGroupIds })
         .andWhere('groups.startAgeRange IS NOT NULL')
         .andWhere('groups.endAgeRange IS NOT NULL')
+        .orderBy('clients.firstName')
         .getMany();
     }
 
