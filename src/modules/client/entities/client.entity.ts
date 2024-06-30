@@ -9,6 +9,7 @@ import {
   Unique,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import {
   IsEmail,
@@ -41,6 +42,7 @@ import {
   ShabbathKosher,
   ClientStatuses,
 } from '../../../enums';
+import { ClientInterest } from '../../client-interest/entities/client-interest.entity';
 
 @Entity('clients')
 @Unique(['phone', 'email'])
@@ -226,4 +228,10 @@ export class Client {
     },
   })
   ethnicities: Ethnicity[];
+
+  @OneToMany(
+    () => ClientInterest,
+    (clientInterest) => clientInterest.intrestedInClient,
+  )
+  clientInterests: ClientInterest[];
 }

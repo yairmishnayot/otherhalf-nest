@@ -147,8 +147,10 @@ export class ClientInterestService {
         9, // PROJECT SHAHAM ID
       ];
 
-      return await this.clientRepository
-        .createQueryBuilder('clients')
+      // Use NOT EXISTS to exclude clients who have previously expressed interest in the given client
+      const qb = this.clientRepository.createQueryBuilder('clients');
+
+      return await qb
         .innerJoin('clients.group', 'groups')
         .innerJoinAndSelect('clients.user', 'user')
         .where('clients.gender <> :clientGender', {
@@ -157,6 +159,17 @@ export class ClientInterestService {
         .andWhere('groups.id IN (:...groupIds)', { groupIds: relevantGroupIds })
         .andWhere('groups.startAgeRange IS NOT NULL')
         .andWhere('groups.endAgeRange IS NOT NULL')
+        .andWhere(
+          `NOT EXISTS (
+          SELECT 1
+          FROM clients_interests clientInterest
+          WHERE clientInterest.client_id = clients.id
+          AND clientInterest.intrested_in_client_id = :intrestedInClientId
+          AND clientInterest.status = :status
+        )`,
+        )
+        .setParameter('intrestedInClientId', clientId)
+        .setParameter('status', ClientInterestStatuses.Waiting)
         .orderBy('clients.firstName')
         .getMany();
     }
