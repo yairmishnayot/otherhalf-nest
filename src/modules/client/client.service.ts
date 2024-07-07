@@ -30,6 +30,7 @@ export class ClientService {
       .innerJoinAndSelect('client.religionStyle', 'religionStyle')
       .leftJoinAndSelect('client.interestLink', 'interestLink')
       .orderBy('client.firstName', 'ASC')
+      .addOrderBy('client.lastName', 'ASC')
       .getMany();
   }
 
