@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateInterestLinkDto } from './dto/create-interest-link.dto';
 import { UpdateInterestLinkDto } from './dto/update-interest-link.dto';
 import { InterestLink } from './entities/interest-link.entity';
@@ -39,7 +39,7 @@ export class InterestLinkService {
         client: client,
       });
 
-      return this.interestLinkRepository.save(newInterestLink);
+      return await this.interestLinkRepository.save(newInterestLink);
     }
   }
 
@@ -60,8 +60,26 @@ export class InterestLinkService {
     return `This action returns all interestLink`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} interestLink`;
+  async findOne(id: number): Promise<InterestLink> {
+    return this.interestLinkRepository.findOne({
+      where: { id },
+      relations: ['client'],
+    });
+  }
+
+  async findByClientId(clientId: number): Promise<InterestLink> {
+    const interestLink = await this.interestLinkRepository.findOne({
+      where: { client: { id: clientId } },
+      relations: ['client'],
+    });
+
+    if (!interestLink) {
+      throw new NotFoundException(
+        `InterestLink for Client with id ${clientId} not found`,
+      );
+    }
+
+    return interestLink;
   }
 
   update(id: number, updateInterestLinkDto: UpdateInterestLinkDto) {

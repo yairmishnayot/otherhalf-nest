@@ -33,6 +33,11 @@ export class InterestLinkController {
     return this.interestLinkService.findOne(+id);
   }
 
+  @Get('client/:clientId')
+  findByClientId(@Param('clientId') clientId: string) {
+    return this.interestLinkService.findByClientId(+clientId);
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,
