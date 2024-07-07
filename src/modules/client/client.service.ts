@@ -28,6 +28,8 @@ export class ClientService {
       .innerJoinAndSelect('client.city', 'city')
       .innerJoinAndSelect('client.ethnicities', 'ethnicities')
       .innerJoinAndSelect('client.religionStyle', 'religionStyle')
+      .leftJoinAndSelect('client.interestLink', 'interestLink')
+      .orderBy('client.firstName', 'ASC')
       .getMany();
   }
 
@@ -39,7 +41,13 @@ export class ClientService {
   async findOne(id: number, userId: number): Promise<Client> {
     const client: Client = await this.clientRepository.findOne({
       where: { id: id },
-      relations: ['user', 'city', 'ethnicities', 'religionStyle'],
+      relations: [
+        'user',
+        'city',
+        'ethnicities',
+        'religionStyle',
+        'interestLink',
+      ],
     });
 
     if (client.user.id !== userId) {
