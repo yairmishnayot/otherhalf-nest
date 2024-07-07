@@ -53,7 +53,7 @@ export class InterestLinkService {
       slug += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
 
-    return `${process.env.APP_BASE_URL}/submit-interest?slug=${slug}`;
+    return `${process.env.CLIENT_BASE_URL}/submit-interest?slug=${slug}`;
   }
 
   findAll() {
