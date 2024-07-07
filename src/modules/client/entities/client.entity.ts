@@ -10,6 +10,7 @@ import {
   ManyToMany,
   JoinTable,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 import {
   IsEmail,
@@ -43,6 +44,7 @@ import {
   ClientStatuses,
 } from '../../../enums';
 import { ClientInterest } from '../../client-interest/entities/client-interest.entity';
+import { InterestLink } from '../../interest-link/entities/interest-link.entity';
 
 @Entity('clients')
 @Unique(['phone', 'email'])
@@ -234,4 +236,7 @@ export class Client {
     (clientInterest) => clientInterest.intrestedInClient,
   )
   clientInterests: ClientInterest[];
+
+  @OneToOne(() => InterestLink, (interestLink) => interestLink.client)
+  interestLink: InterestLink;
 }

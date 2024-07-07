@@ -19,6 +19,7 @@ import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ResponseFormatInterceptor } from 'src/common/interceptors/response-format/response-format.interceptor';
 import { AuthGuard } from '../auth/auth.gurad';
 import { ClientInterestModule } from '../client-interest/client-interest.module';
+import { InterestLinkModule } from '../interest-link/interest-link.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { ClientInterestModule } from '../client-interest/client-interest.module'
     UserGroupModule,
     AuthModule,
     ClientInterestModule,
+    InterestLinkModule,
   ],
   controllers: [AppController],
   providers: [

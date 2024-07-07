@@ -14,7 +14,8 @@ Now, for the steps:
 ## Migrations
 ### Creating Migrations
 - Go into the "otherhalf-nest" container
-- run ```npm run migration:generate --name=<your_migration_name>```
+- run npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d src/data-source.ts src/migrations/YourMigrationName
+- Other option(not always working) - run ```npm run migration:generate --name=<your_migration_name>```
 
 ### Running Migrations
 - Go into the "otherhalf-nest" container
