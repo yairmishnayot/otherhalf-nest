@@ -16,6 +16,8 @@ import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientInterestService } from '../client-interest/client-interest.service';
 import { ClientGuard } from './guards/client/client.guard';
 import { changeClientInterestStatusDto } from '../client-interest/dto/change-client-interest-status.dto';
+import { CreateSingleClientInterestDto } from '../client-interest/dto/create-single-client-interest.dto';
+import { Public } from '../../common/decorators/public/public.decorator';
 
 @Controller('clients')
 export class ClientController {
@@ -75,11 +77,23 @@ export class ClientController {
 
   @UseGuards(ClientGuard)
   @Post(':id/interests')
-  createClientInterest(
+  async createClientInterest(
     @Param('id') id: string,
     @Body() createClientInterestDto: CreateClientInterestDto,
   ) {
-    return this.clientInterestService.create(createClientInterestDto);
+    return await this.clientInterestService.create(createClientInterestDto);
+  }
+
+  @Public()
+  @Post(':id/interest')
+  async createSingleClientInterest(
+    @Param('id') id: string,
+    @Body() createSingleClientInterestDto: CreateSingleClientInterestDto,
+  ) {
+    return await this.clientInterestService.createSingleClientInterest(
+      createSingleClientInterestDto.clientId,
+      createSingleClientInterestDto.interestedClientId,
+    );
   }
 
   @UseGuards(ClientGuard)
