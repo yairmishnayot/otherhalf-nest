@@ -32,39 +32,60 @@ export class ClientInterestService {
     const failedRecordsClientIds = [];
 
     for (const interestedInClientId of createClientInterestDto.interestedClients) {
-      const client = await this.clientRepository.findOneBy({
-        id: createClientInterestDto.clientId,
-      });
+      const createdClientInterest = await this.createSingleClientInterest(
+        createClientInterestDto.clientId,
+        interestedInClientId,
+      );
 
-      const interestedClient = await this.clientRepository.findOne({
-        where: { id: interestedInClientId },
-        relations: ['user'],
-      });
-
-      // Check if there is a record with the same data
-      const existingRecord = await this.clientInterestRepository.findOneBy({
-        client: interestedClient,
-        intrestedInClient: client,
-      });
-
-      if (existingRecord || client.id === interestedClient.id) {
+      if (createdClientInterest) {
+        successfullyCreatedRecords.push(createdClientInterest);
+      } else {
         failedRecordsClientIds.push(interestedInClientId);
-        continue;
       }
-
-      const clientInterest = this.clientInterestRepository.create({
-        client: interestedClient,
-        intrestedInClient: client,
-      });
-      await this.clientInterestRepository.save(clientInterest);
-
-      successfullyCreatedRecords.push(clientInterest);
     }
 
     return {
       successfullyCreatedRecords,
       failedRecordsClientIds,
     };
+  }
+
+  /**
+   * Create a single client interest record
+   * @param clientId
+   * @param interestedInClientId
+   * @returns Created client interest record or null if it failed
+   */
+  public async createSingleClientInterest(
+    clientId: number,
+    interestedInClientId: number,
+  ): Promise<ClientInterest | null> {
+    const client = await this.clientRepository.findOneBy({
+      id: clientId,
+    });
+
+    const interestedClient = await this.clientRepository.findOne({
+      where: { id: interestedInClientId },
+      relations: ['user'],
+    });
+
+    // Check if there is a record with the same data
+    const existingRecord = await this.clientInterestRepository.findOneBy({
+      client: interestedClient,
+      intrestedInClient: client,
+    });
+
+    if (existingRecord || client.id === interestedClient.id) {
+      return null;
+    }
+
+    const clientInterest = this.clientInterestRepository.create({
+      client: interestedClient,
+      intrestedInClient: client,
+    });
+    await this.clientInterestRepository.save(clientInterest);
+
+    return clientInterest;
   }
 
   findAll() {
