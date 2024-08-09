@@ -1,4 +1,3 @@
-import { CreateClientInterestDto } from './../client-interest/dto/create-client-interest.dto';
 import {
   Controller,
   Get,
@@ -17,6 +16,7 @@ import { ClientInterestService } from '../client-interest/client-interest.servic
 import { ClientGuard } from './guards/client/client.guard';
 import { changeClientInterestStatusDto } from '../client-interest/dto/change-client-interest-status.dto';
 import { CreateInterestByPhoneDto } from '../client-interest/dto/create-interest-by-phone.dto';
+import { CreateClientInterestDto } from '../client-interest/dto/create-client-interest.dto';
 import { Public } from '../../common/decorators/public/public.decorator';
 
 @Controller('clients')
