@@ -105,7 +105,7 @@ export class ClientInterestService {
 
     if (!client) {
       // We did not find the client that we want to add interest to
-      throw new NotFoundException();
+      this.throwClientNotFoundException();
     }
 
     const interestedClient = await this.clientRepository.findOne({
@@ -113,7 +113,7 @@ export class ClientInterestService {
     });
     if (!interestedClient) {
       // We did not find the client that is trying to interest
-      throw new NotFoundException();
+      this.throwClientNotFoundException();
     }
 
     // Check if there is a record with the same data
@@ -125,9 +125,8 @@ export class ClientInterestService {
     if (existingRecord) {
       throw new HttpException(
         {
-          message:
-            'It seems that there not enough data in the system to perform the action',
-          code: Errors.CLIENT_NOT_FOUND,
+          message: 'Client interest already exists',
+          code: Errors.CLIENT_INTEREST_ALREADY_EXISTS,
         },
         500,
       );
@@ -260,5 +259,16 @@ export class ClientInterestService {
     }
 
     return [];
+  }
+
+  private throwClientNotFoundException() {
+    throw new HttpException(
+      {
+        message:
+          'It seems that there not enough data in the system to perform the action',
+        code: Errors.CLIENT_NOT_FOUND,
+      },
+      500,
+    );
   }
 }
