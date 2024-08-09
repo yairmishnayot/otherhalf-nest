@@ -16,7 +16,7 @@ import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientInterestService } from '../client-interest/client-interest.service';
 import { ClientGuard } from './guards/client/client.guard';
 import { changeClientInterestStatusDto } from '../client-interest/dto/change-client-interest-status.dto';
-import { CreateSingleClientInterestDto } from '../client-interest/dto/create-single-client-interest.dto';
+import { CreateInterestByPhoneDto } from '../client-interest/dto/create-interest-by-phone.dto';
 import { Public } from '../../common/decorators/public/public.decorator';
 
 @Controller('clients')
@@ -85,14 +85,14 @@ export class ClientController {
   }
 
   @Public()
-  @Post(':id/interest')
+  @Post(':phone/interest')
   async createSingleClientInterest(
-    @Param('id') id: string,
-    @Body() createSingleClientInterestDto: CreateSingleClientInterestDto,
+    @Param('phone') phone: string,
+    @Body() createInterestByPhoneDto: CreateInterestByPhoneDto,
   ) {
-    return await this.clientInterestService.createSingleClientInterest(
-      createSingleClientInterestDto.clientId,
-      createSingleClientInterestDto.interestedClientId,
+    return await this.clientInterestService.createClientInterestByPhone(
+      createInterestByPhoneDto.clientPhone,
+      phone,
     );
   }
 

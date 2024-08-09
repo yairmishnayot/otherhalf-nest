@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClientInterestDto } from './dto/create-client-interest.dto';
 import { UpdateClientInterestDto } from './dto/update-client-interest.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,7 @@ import { Client } from '../client/entities/client.entity';
 import { CreateClientInterestResponseDto } from './dto/create-client-interest-response.dto';
 import { ClientInterestStatuses } from 'src/enums/client-interest-statuses.enum';
 import { ProjectsIds } from '../../enums/projectsIds.enum';
+import { Errors } from '../../enums/errors.enum';
 
 @Injectable()
 export class ClientInterestService {
@@ -77,6 +78,69 @@ export class ClientInterestService {
 
     if (existingRecord || client.id === interestedClient.id) {
       return null;
+    }
+
+    const clientInterest = this.clientInterestRepository.create({
+      client: interestedClient,
+      intrestedInClient: client,
+    });
+    await this.clientInterestRepository.save(clientInterest);
+
+    return clientInterest;
+  }
+
+  /**
+   * Create a single client interest record by client's phone
+   * @param clientPhone
+   * @param interestedInClientPhone
+   * @returns Created client interest record or null if it failed
+   */
+  public async createClientInterestByPhone(
+    clientPhone: string,
+    interestedInClientPhone: string,
+  ): Promise<ClientInterest | null> {
+    const client = await this.clientRepository.findOne({
+      where: { phone: interestedInClientPhone },
+    });
+
+    if (!client) {
+      // We did not find the client that we want to add interest to
+      throw new NotFoundException();
+    }
+
+    const interestedClient = await this.clientRepository.findOne({
+      where: { phone: clientPhone },
+    });
+    if (!interestedClient) {
+      // We did not find the client that is trying to interest
+      throw new NotFoundException();
+    }
+
+    // Check if there is a record with the same data
+    const existingRecord = await this.clientInterestRepository.findOneBy({
+      client: interestedClient,
+      intrestedInClient: client,
+    });
+
+    if (existingRecord) {
+      throw new HttpException(
+        {
+          message:
+            'It seems that there not enough data in the system to perform the action',
+          code: Errors.CLIENT_NOT_FOUND,
+        },
+        500,
+      );
+    }
+
+    if (client.id === interestedClient.id) {
+      throw new HttpException(
+        {
+          message: 'Client cannot be interested in himself',
+          code: Errors.CLIENT_INTEREST_IN_HIMSELF,
+        },
+        500,
+      );
     }
 
     const clientInterest = this.clientInterestRepository.create({
