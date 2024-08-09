@@ -91,7 +91,7 @@ export class ClientController {
     @Body() createInterestByPhoneDto: CreateInterestByPhoneDto,
   ) {
     return await this.clientInterestService.createClientInterestByPhone(
-      createInterestByPhoneDto.clientPhone,
+      createInterestByPhoneDto.interestedClientPhone,
       phone,
     );
   }
