@@ -18,10 +18,10 @@ export class InterestLinkService {
   ) {}
 
   async create(createInterestLinkDto: CreateInterestLinkDto) {
-    const existingInterestLink: InterestLink =
-      await this.interestLinkRepository.findOne({
-        where: { client: { id: createInterestLinkDto.clientId } },
-      });
+    const existingInterestLink = await this.interestLinkRepository.findOne({
+      where: { client: { id: createInterestLinkDto.clientId } },
+    });
+
     if (existingInterestLink) {
       return existingInterestLink;
     } else {
@@ -30,11 +30,11 @@ export class InterestLinkService {
       });
 
       if (!client) {
-        throw new Error('Client not found');
+        throw new NotFoundException('Client not found');
       }
 
       // create the interest link
-      const newInterestLink: InterestLink = this.interestLinkRepository.create({
+      const newInterestLink = this.interestLinkRepository.create({
         link: this.generateLink(),
         client: client,
       });
@@ -44,6 +44,13 @@ export class InterestLinkService {
   }
 
   private generateLink() {
+    const baseUrl = process.env.CLIENT_BASE_URL;
+    if (!baseUrl) {
+      throw new Error(
+        'CLIENT_BASE_URL is not defined in environment variables.',
+      );
+    }
+
     const characters =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
@@ -53,18 +60,24 @@ export class InterestLinkService {
       slug += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
 
-    return `${process.env.CLIENT_BASE_URL}/submit-interest?slug=${slug}`;
+    return `${baseUrl}/submit-interest?slug=${slug}`;
   }
 
   findAll() {
-    return `This action returns all interestLink`;
+    return `This action returns all interest links`;
   }
 
   async findOne(id: number): Promise<InterestLink> {
-    return this.interestLinkRepository.findOne({
+    const interestLink = await this.interestLinkRepository.findOne({
       where: { id },
       relations: ['client'],
     });
+
+    if (!interestLink) {
+      throw new NotFoundException(`InterestLink with id ${id} not found`);
+    }
+
+    return interestLink;
   }
 
   async findByClientId(clientId: number): Promise<InterestLink> {
@@ -83,10 +96,10 @@ export class InterestLinkService {
   }
 
   update(id: number, updateInterestLinkDto: UpdateInterestLinkDto) {
-    return `This action updates a #${id} interestLink`;
+    return `This action updates a #${id} interest link`;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} interestLink`;
+    return `This action removes a #${id} interest link`;
   }
 }

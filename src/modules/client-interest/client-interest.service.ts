@@ -21,14 +21,14 @@ export class ClientInterestService {
   ) {}
 
   /**
-   *  Create a new client interest record
+   * Create a new client interest record
    * @param createClientInterestDto
    * @returns
    */
   async create(
     createClientInterestDto: CreateClientInterestDto,
   ): Promise<CreateClientInterestResponseDto> {
-    // loop through the interestedClients array and create a record for each
+    // Loop through the interestedClients array and create a record for each
     const successfullyCreatedRecords = [];
     const failedRecordsClientIds = [];
 
@@ -61,19 +61,15 @@ export class ClientInterestService {
     clientId: number,
     interestedInClientId: number,
   ): Promise<ClientInterest | null> {
-    const client = await this.clientRepository.findOneBy({
-      id: clientId,
-    });
-
-    const interestedClient = await this.clientRepository.findOne({
-      where: { id: interestedInClientId },
-      relations: ['user'],
-    });
+    const client = await this.getClientById(clientId);
+    const interestedClient = await this.getClientById(interestedInClientId);
 
     // Check if there is a record with the same data
-    const existingRecord = await this.clientInterestRepository.findOneBy({
-      client: interestedClient,
-      intrestedInClient: client,
+    const existingRecord = await this.clientInterestRepository.findOne({
+      where: {
+        client: { id: interestedClient.id },
+        interestedInClient: { id: client.id },
+      },
     });
 
     if (existingRecord || client.id === interestedClient.id) {
@@ -82,7 +78,7 @@ export class ClientInterestService {
 
     const clientInterest = this.clientInterestRepository.create({
       client: interestedClient,
-      intrestedInClient: client,
+      interestedInClient: client,
     });
     await this.clientInterestRepository.save(clientInterest);
 
@@ -99,27 +95,15 @@ export class ClientInterestService {
     clientPhone: string,
     interestedInClientPhone: string,
   ): Promise<ClientInterest | null> {
-    const client = await this.clientRepository.findOne({
-      where: { phone: interestedInClientPhone },
-    });
-
-    if (!client) {
-      // We did not find the client that we want to add interest to
-      this.throwClientNotFoundException();
-    }
-
-    const interestedClient = await this.clientRepository.findOne({
-      where: { phone: clientPhone },
-    });
-    if (!interestedClient) {
-      // We did not find the client that is trying to interest
-      this.throwClientNotFoundException();
-    }
+    const client = await this.getClientByPhone(interestedInClientPhone);
+    const interestedClient = await this.getClientByPhone(clientPhone);
 
     // Check if there is a record with the same data
-    const existingRecord = await this.clientInterestRepository.findOneBy({
-      client: interestedClient,
-      intrestedInClient: client,
+    const existingRecord = await this.clientInterestRepository.findOne({
+      where: {
+        client: { id: interestedClient.id },
+        interestedInClient: { id: client.id },
+      },
     });
 
     if (existingRecord) {
@@ -144,7 +128,7 @@ export class ClientInterestService {
 
     const clientInterest = this.clientInterestRepository.create({
       client: interestedClient,
-      intrestedInClient: client,
+      interestedInClient: client,
     });
     await this.clientInterestRepository.save(clientInterest);
 
@@ -152,7 +136,7 @@ export class ClientInterestService {
   }
 
   findAll() {
-    return `This action returns all clientInterest`;
+    return `This action returns all client interests`;
   }
 
   /**
@@ -163,12 +147,12 @@ export class ClientInterestService {
   findAllForClient(clientId: number) {
     return this.clientInterestRepository
       .createQueryBuilder('clients_interests')
-      .innerJoinAndSelect('clients_interests.client', 'intrestedInClient')
-      .innerJoinAndSelect('intrestedInClient.ethnicities', 'ethnicities')
-      .innerJoinAndSelect('intrestedInClient.city', 'city')
-      .innerJoinAndSelect('intrestedInClient.user', 'user')
-      .innerJoinAndSelect('intrestedInClient.religionStyle', 'religionStyle')
-      .where('clients_interests.intrestedInClient = :clientId', { clientId })
+      .innerJoinAndSelect('clients_interests.client', 'interestedInClient')
+      .innerJoinAndSelect('interestedInClient.ethnicities', 'ethnicities')
+      .innerJoinAndSelect('interestedInClient.city', 'city')
+      .innerJoinAndSelect('interestedInClient.user', 'user')
+      .innerJoinAndSelect('interestedInClient.religionStyle', 'religionStyle')
+      .where('clients_interests.interestedInClient = :clientId', { clientId })
       .andWhere('clients_interests.status = :status', {
         status: ClientInterestStatuses.Waiting,
       })
@@ -187,20 +171,23 @@ export class ClientInterestService {
   async findOne(id: number) {
     return await this.clientInterestRepository
       .createQueryBuilder('clients_interests')
-      .innerJoinAndSelect('clients_interests.client', 'intrestedInClient')
-      .innerJoinAndSelect('intrestedInClient.user', 'user')
+      .innerJoinAndSelect('clients_interests.client', 'interestedInClient')
+      .innerJoinAndSelect('interestedInClient.user', 'user')
       .where('clients_interests.id = :id', { id })
       .getOne();
   }
 
   update(id: number, updateClientInterestDto: UpdateClientInterestDto) {
-    return `This action updates a #${id} clientInterest`;
+    return `This action updates a #${id} client interest`;
   }
 
   async changeStatus(id: number, status: ClientInterestStatuses) {
     const clientInterest = await this.clientInterestRepository.findOne({
       where: { id },
     });
+    if (!clientInterest) {
+      throw new NotFoundException(`Client interest with id ${id} not found`);
+    }
     clientInterest.status = status;
     await this.clientInterestRepository.save(clientInterest);
     return clientInterest;
@@ -222,6 +209,13 @@ export class ClientInterestService {
       },
       relations: ['group', 'group.project'],
     });
+
+    if (!client) {
+      throw new NotFoundException(`Client with id ${clientId} not found`);
+    }
+    if (!client.group || !client.group.project) {
+      throw new Error('Client group or project not found');
+    }
 
     if (client.group.project.id === ProjectsIds.OtherHalf) {
       const relevantGroupIds = [
@@ -245,14 +239,14 @@ export class ClientInterestService {
         .andWhere('groups.endAgeRange IS NOT NULL')
         .andWhere(
           `NOT EXISTS (
-          SELECT 1
-          FROM clients_interests clientInterest
-          WHERE clientInterest.client_id = clients.id
-          AND clientInterest.intrested_in_client_id = :intrestedInClientId
-          AND clientInterest.status = :status
-        )`,
+            SELECT 1
+            FROM clients_interests clientInterest
+            WHERE clientInterest.client_id = clients.id
+            AND clientInterest.interested_in_client_id = :interestedInClientId
+            AND clientInterest.status = :status
+          )`,
         )
-        .setParameter('intrestedInClientId', clientId)
+        .setParameter('interestedInClientId', clientId)
         .setParameter('status', ClientInterestStatuses.Waiting)
         .orderBy('clients.firstName')
         .getMany();
@@ -261,11 +255,33 @@ export class ClientInterestService {
     return [];
   }
 
+  private async getClientById(clientId: number): Promise<Client> {
+    const client = await this.clientRepository.findOne({
+      where: { id: clientId },
+      relations: ['user'],
+    });
+    if (!client) {
+      throw new NotFoundException(`Client with id ${clientId} not found`);
+    }
+    return client;
+  }
+
+  private async getClientByPhone(phone: string): Promise<Client> {
+    const client = await this.clientRepository.findOne({
+      where: { phone },
+      relations: ['user'],
+    });
+    if (!client) {
+      throw new NotFoundException(`Client with phone ${phone} not found`);
+    }
+    return client;
+  }
+
   private throwClientNotFoundException() {
     throw new HttpException(
       {
         message:
-          'It seems that there not enough data in the system to perform the action',
+          'It seems that there is not enough data in the system to perform the action',
         code: Errors.CLIENT_NOT_FOUND,
       },
       500,

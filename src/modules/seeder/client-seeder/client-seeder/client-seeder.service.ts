@@ -9,14 +9,14 @@ import {
   Roles,
   ShabbathKosher,
   ShmiratNegia,
-} from 'src/enums';
-import { ProjectsIds } from 'src/enums/projectsIds.enum';
-import { City } from 'src/modules/city/entities/city.entity';
-import { Client } from 'src/modules/client/entities/client.entity';
-import { Ethnicity } from 'src/modules/ethnicity/entities/ethnicity.entity';
-import { ReligionStyle } from 'src/modules/religion-style/entities/religion-style.entity';
-import { UserGroup } from 'src/modules/user-group/entities/user-group.entity';
-import { User } from 'src/modules/user/entities/user.entity';
+} from '@app/enums';
+import { ProjectsIds } from '@app/enums/projectsIds.enum';
+import { City } from '@modules/city/entities/city.entity';
+import { Client } from '@modules/client/entities/client.entity';
+import { Ethnicity } from '@modules/ethnicity/entities/ethnicity.entity';
+import { ReligionStyle } from '@modules/religion-style/entities/religion-style.entity';
+import { UserGroup } from '@modules/user-group/entities/user-group.entity';
+import { User } from '@modules/user/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -63,9 +63,14 @@ export class ClientSeederService {
     this.logger.log('Starting seeding clients');
 
     // Get religion style
-    const religionStyle = await this.religionStyleRepository.findOneOrFail({
-      where: { id: this.religionStyleId },
-    });
+    let religionStyle: ReligionStyle;
+    try {
+      religionStyle = await this.religionStyleRepository.findOneOrFail({
+        where: { id: this.religionStyleId },
+      });
+    } catch (error) {
+      throw new Error('Religion style not found');
+    }
 
     for (let i = 0; i < numOfClients; i++) {
       const age = this.chooseRandomAge(this.minAge, this.maxAge);
@@ -73,6 +78,10 @@ export class ClientSeederService {
         age,
         this.projectId,
       );
+
+      if (!user.userGroups || user.userGroups.length === 0) {
+        throw new Error('User does not belong to any groups');
+      }
 
       this.gender = this.chooseGender();
 
@@ -107,6 +116,7 @@ export class ClientSeederService {
       client.city = await this.chooseRandomCity();
       client.religionStyle = religionStyle;
       client.ethnicities = await this.chooseRandomEthnicities();
+
       await this.clientRepository.save(client);
     }
 
@@ -133,7 +143,7 @@ export class ClientSeederService {
     return phone;
   }
 
-  // write a function that will generate a random email witoout duplicates
+  // write a function that will generate a random email without duplicates
   private generateRandomEmail(): string {
     const email = faker.internet.email();
     if (this.generatedEmails.includes(email)) {
@@ -145,14 +155,20 @@ export class ClientSeederService {
   }
 
   /**
-   *  Choose a random city
-   * @returns {City} a random city
+   * Choose a random city
+   * @returns {Promise<City>} a random city
    */
-  private async chooseRandomCity() {
-    return await this.cityRepository
+  private async chooseRandomCity(): Promise<City> {
+    const city = await this.cityRepository
       .createQueryBuilder('city')
       .orderBy('RANDOM()')
       .getOne();
+
+    if (!city) {
+      throw new Error('No cities found in the database');
+    }
+
+    return city;
   }
 
   /**
@@ -165,20 +181,20 @@ export class ClientSeederService {
 
   // generate random number between minAge and maxAge
   private chooseRandomAge(minAge: number, maxAge: number): number {
-    return Math.floor(Math.random() * (maxAge - minAge + 1)) + this.minAge;
+    return Math.floor(Math.random() * (maxAge - minAge + 1)) + minAge;
   }
 
   /**
    * Choose a random user by the client's age and project id
    * @param age
    * @param projectId
-   * @returns
+   * @returns {Promise<User>}
    */
   private async chooseRandomUserByClientAgeAndProjectId(
     age: number,
     projectId: number,
-  ) {
-    return await this.userRepository
+  ): Promise<User> {
+    const user = await this.userRepository
       .createQueryBuilder('user')
       .innerJoinAndSelect('user.userGroups', 'userGroup')
       .innerJoinAndSelect('userGroup.group', 'group')
@@ -188,16 +204,28 @@ export class ClientSeederService {
       .andWhere('group.endAgeRange >= :age', { age })
       .orderBy('RANDOM()')
       .getOne();
+
+    if (!user) {
+      throw new Error('No user found matching the criteria');
+    }
+
+    return user;
   }
 
   // write a function that will fetch random number of ethnicities from DB, the number will be between 1 and 4
-  private async chooseRandomEthnicities() {
+  private async chooseRandomEthnicities(): Promise<Ethnicity[]> {
     const numOfEthnicities = Math.floor(Math.random() * 4) + 1;
-    return await this.ethnicityRepository
+    const ethnicities = await this.ethnicityRepository
       .createQueryBuilder('ethnicity')
       .orderBy('RANDOM()')
       .limit(numOfEthnicities)
       .getMany();
+
+    if (ethnicities.length === 0) {
+      throw new Error('No ethnicities found in the database');
+    }
+
+    return ethnicities;
   }
 
   /**
@@ -208,7 +236,7 @@ export class ClientSeederService {
   private generateBirthdate(age: number): Date {
     const currentDate = new Date();
     const year = currentDate.getFullYear() - age;
-    const month = Math.floor(Math.random() * 12) + 1;
+    const month = Math.floor(Math.random() * 12);
     const day = Math.floor(Math.random() * 28) + 1;
     return new Date(year, month, day);
   }

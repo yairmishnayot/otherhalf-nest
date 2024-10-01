@@ -20,6 +20,8 @@ import { ResponseFormatInterceptor } from 'src/common/interceptors/response-form
 import { AuthGuard } from '../auth/auth.gurad';
 import { ClientInterestModule } from '../client-interest/client-interest.module';
 import { InterestLinkModule } from '../interest-link/interest-link.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { GoogleSheetsModule } from '../google-sheets/google-sheets.module';
 
 @Module({
   imports: [
@@ -51,6 +53,8 @@ import { InterestLinkModule } from '../interest-link/interest-link.module';
     AuthModule,
     ClientInterestModule,
     InterestLinkModule,
+    ScheduleModule.forRoot(),
+    GoogleSheetsModule,
   ],
   controllers: [AppController],
   providers: [

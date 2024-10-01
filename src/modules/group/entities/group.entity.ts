@@ -17,7 +17,7 @@ export class Group {
   id: number;
 
   @ManyToOne(() => Project, (project) => project.groups)
-  project: Project;
+  project: null | Project;
 
   @Column({
     type: 'varchar',
@@ -31,7 +31,7 @@ export class Group {
   })
   @IsInt()
   @IsOptional()
-  startAgeRange: number;
+  startAgeRange: null | number;
 
   @Column({
     type: 'int',
@@ -39,7 +39,7 @@ export class Group {
   })
   @IsInt()
   @IsOptional()
-  endAgeRange: number;
+  endAgeRange: null | number;
 
   @CreateDateColumn({
     type: 'timestamp',

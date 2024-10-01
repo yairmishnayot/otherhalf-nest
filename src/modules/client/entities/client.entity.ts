@@ -233,7 +233,7 @@ export class Client {
 
   @OneToMany(
     () => ClientInterest,
-    (clientInterest) => clientInterest.intrestedInClient,
+    (clientInterest) => clientInterest.interestedInClient,
   )
   clientInterests: ClientInterest[];
 

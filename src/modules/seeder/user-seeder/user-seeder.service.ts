@@ -43,11 +43,23 @@ export class UserSeederService {
       await this.userRepository.save(user);
 
       const role = await this.roleRepository.findOne({ where: { id: 8 } }); // Regular Member
+      if (!role) {
+        throw new Error('Role with id 8 not found');
+      }
       const group = await this.groupRepository.findOne({ where: { id: 2 } }); // This is the technology group
+      if (!group) {
+        throw new Error('Group with id 2 not found');
+      }
 
-      await this.userGroupRepository.save({ user, group, role });
+      // Create a UserGroup instance
+      const userGroup = new UserGroup();
+      userGroup.user = user;
+      userGroup.group = group;
+      userGroup.role = role;
 
-      // creating a manager for each clients group(ids 3-9)
+      await this.userGroupRepository.save(userGroup);
+
+      // Creating a manager for each clients group (ids 3-9)
       for (let i = 3; i <= 9; i++) {
         user = new User();
         user.email = this.generateRandomEmail();
@@ -61,9 +73,20 @@ export class UserSeederService {
         await this.userRepository.save(user);
 
         const role = await this.roleRepository.findOne({ where: { id: 3 } }); // Manager
+        if (!role) {
+          throw new Error('Role with id 3 not found');
+        }
         const group = await this.groupRepository.findOne({ where: { id: i } }); // The id of the relevant group
+        if (!group) {
+          throw new Error(`Group with id ${i} not found`);
+        }
 
-        await this.userGroupRepository.save({ user, group, role });
+        const userGroup = new UserGroup();
+        userGroup.user = user;
+        userGroup.group = group;
+        userGroup.role = role;
+
+        await this.userGroupRepository.save(userGroup);
       }
     } else {
       // Creating users based on the amount of users
@@ -75,7 +98,7 @@ export class UserSeederService {
     this.logger.log('Finished seeding users');
   }
 
-  // write a function that will generate a random email witoout duplicates
+  // Function to generate a random email without duplicates
   private generateRandomEmail(): string {
     const email = faker.internet.email();
     if (this.generatedEmails.includes(email)) {
@@ -94,17 +117,28 @@ export class UserSeederService {
     user.password = await bcrypt.hash('123456', 10);
     user.phone = '0000000000';
     user.isAdmin = false;
-    user.isFirstLogin = false; // we don't want to force the admin to change the password
-
-    const groupId = Math.floor(Math.random() * (9 - 3 + 1));
+    user.isFirstLogin = false; // we don't want to force the user to change the password
 
     await this.userRepository.save(user);
 
+    const groupId = Math.floor(Math.random() * (9 - 3 + 1)) + 3; // Random groupId between 3 and 9 inclusive
+
     const role = await this.roleRepository.findOne({ where: { id: 3 } }); // Manager
+    if (!role) {
+      throw new Error('Role with id 3 not found');
+    }
     const group = await this.groupRepository.findOne({
       where: { id: groupId },
     }); // The id of the relevant group
+    if (!group) {
+      throw new Error(`Group with id ${groupId} not found`);
+    }
 
-    await this.userGroupRepository.save({ user, group, role });
+    const userGroup = new UserGroup();
+    userGroup.user = user;
+    userGroup.group = group;
+    userGroup.role = role;
+
+    await this.userGroupRepository.save(userGroup);
   }
 }

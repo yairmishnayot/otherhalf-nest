@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -37,10 +41,11 @@ export class ClientService {
   /**
    * Get a specific client if user is authorized
    * @param id
+   * @param userId
    * @returns {Promise<Client>}
    */
   async findOne(id: number, userId: number): Promise<Client> {
-    const client: Client = await this.clientRepository.findOne({
+    const client = await this.clientRepository.findOne({
       where: { id: id },
       relations: [
         'user',
@@ -50,6 +55,14 @@ export class ClientService {
         'interestLink',
       ],
     });
+
+    if (!client) {
+      throw new NotFoundException(`Client with id ${id} not found`);
+    }
+
+    if (!client.user) {
+      throw new Error('Client does not have an associated user');
+    }
 
     if (client.user.id !== userId) {
       throw new ForbiddenException('You can only view your clients');

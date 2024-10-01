@@ -83,15 +83,24 @@ export class GroupSeederService {
       });
 
       if (groupExists) {
-        this.logger.log(`Group ${group.name} already exists. skipping...`);
+        this.logger.log(`Group ${group.name} already exists. Skipping...`);
       } else {
         const newGroup = new Group();
         newGroup.name = group.name;
         newGroup.startAgeRange = group.startAgeRange;
         newGroup.endAgeRange = group.endAgeRange;
-        const project = await this.projectRepository.findOne({
-          where: { id: group.projectId },
-        });
+
+        let project: Project | null = null;
+        if (group.projectId !== null) {
+          project = await this.projectRepository.findOne({
+            where: { id: group.projectId },
+          });
+
+          if (!project) {
+            throw new Error(`Project with id ${group.projectId} not found`);
+          }
+        }
+
         newGroup.project = project;
         await this.groupRepository.save(newGroup);
       }

@@ -13,7 +13,7 @@ import {
 import { ClientInterestStatuses } from '../../../enums/client-interest-statuses.enum';
 
 @Entity('clients_interests')
-@Unique(['client', 'intrestedInClient'])
+@Unique(['client', 'interestedInClient'])
 export class ClientInterest {
   @PrimaryGeneratedColumn()
   id: number;
@@ -24,7 +24,7 @@ export class ClientInterest {
 
   @ManyToOne(() => Client)
   @JoinColumn({ name: 'intrested_in_client_id' })
-  intrestedInClient: Client;
+  interestedInClient: Client;
 
   @Column({ default: ClientInterestStatuses.Waiting })
   @IsInt()
