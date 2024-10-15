@@ -1,7 +1,6 @@
 import {
   ForbiddenException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -14,7 +13,7 @@ import { RefreshTokenDTO } from './dto/refresh.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignInResponseDto } from './dto/sign-in-response.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
-import { RefreshResponseDto } from './dto/refresh-response.dto';
+import { GetUserDto } from '../user/dto/get-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -78,7 +77,7 @@ export class AuthService {
    * @param user
    * @returns {Promise<string>}
    */
-  async generateAccessToken(user: User): Promise<string> {
+  async generateAccessToken(user: User | GetUserDto): Promise<string> {
     const payload = { sub: user.id, email: user.email, isAdmin: user.isAdmin };
     return await this.jwtService.signAsync(payload);
   }
@@ -88,7 +87,7 @@ export class AuthService {
    * @param user the user to generate the refresh token for
    * @returns {Promise<string>}
    */
-  async generateRefreshToken(user: User): Promise<string> {
+  async generateRefreshToken(user: User | GetUserDto): Promise<string> {
     const sevenDaysFromNow = new Date(
       new Date().getTime() + 7 * 24 * 60 * 60 * 1000,
     );
@@ -131,7 +130,7 @@ export class AuthService {
    */
   async generateAccessTokenByRefreshToken(
     data: RefreshTokenDTO,
-  ): Promise<RefreshResponseDto> {
+  ): Promise<{ user: User | GetUserDto; token: string; refreshToken: string }> {
     // check for the refresh token in DB
     const record = await this.refreshTokenRepository.findOne({
       where: { token: data.refreshToken },

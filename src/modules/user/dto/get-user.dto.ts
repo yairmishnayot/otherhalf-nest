@@ -4,6 +4,7 @@ export class GetUserDto {
   firstName: string;
   lastName: string;
   email: string;
+  password?: string;
   phone: string;
   canManageMoreClients: boolean;
   picture: string | null;

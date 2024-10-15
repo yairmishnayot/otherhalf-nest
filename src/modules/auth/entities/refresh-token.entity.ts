@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { GetUserDto } from '../../user/dto/get-user.dto';
 
 @Entity('refresh_tokens')
 export class RefreshToken {
@@ -16,7 +17,7 @@ export class RefreshToken {
 
   @OneToOne(() => User)
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: User | GetUserDto;
 
   @Column('text')
   token: string;

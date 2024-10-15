@@ -10,6 +10,9 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      "src/*": ["src/*"]  // <--- Add this line for path aliasing
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
