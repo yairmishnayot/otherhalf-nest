@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { GetUserDto } from './dto/get-user.dto';
 
 @Injectable()
 export class UserService {
@@ -35,11 +36,21 @@ export class UserService {
     await this.userRepository.delete(id);
   }
 
-  async findByEmail(email: string) {
-    return await this.userRepository.findOne({
-      where: {
-        email: email,
-      },
+  async findByEmail(email: string): Promise<GetUserDto> {
+    const user = await this.userRepository.findOne({
+      where: { email },
+      relations: ['userGroups', 'userGroups.role'], // Load userGroups and their roles
     });
+
+    // Map the roles from userGroups into a separate array
+    const roles = user.userGroups.map((userGroup) => userGroup.role);
+
+    // Remove the `userGroups` field and attach the `roles` array to the user object
+    const { userGroups, ...userWithoutGroups } = user;
+
+    return {
+      ...userWithoutGroups,
+      roles, // Add the roles array here
+    };
   }
 }

@@ -1,7 +1,7 @@
-import { User } from 'src/modules/user/entities/user.entity';
+import { GetUserDto } from '../../user/dto/get-user.dto';
 
 export class SignInResponseDto {
   token: string;
   refreshToken: string;
-  user: Omit<User, 'password'>;
+  user: GetUserDto;
 }

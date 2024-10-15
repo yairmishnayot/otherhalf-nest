@@ -15,6 +15,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Public } from 'src/common/decorators/public/public.decorator';
 import { RefreshTokenDTO } from './dto/refresh.dto';
 import { UserService } from '../user/user.service';
+import { GetUserDto } from '../user/dto/get-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +26,7 @@ export class AuthController {
 
   @UseInterceptors(UserInterceptor)
   @Get('')
-  async auth(@Req() req: Request) {
+  async auth(@Req() req: Request): Promise<GetUserDto> {
     return await this.userService.findByEmail((req as any).user.email);
   }
 
