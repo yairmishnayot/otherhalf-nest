@@ -2,8 +2,8 @@ export interface BaseRequest extends Request {
   user: RequestUser;
 }
 
-interface RequestUser {
-  sub: number;
+export interface RequestUser {
+  sub: number; // This is the id of the use inside the DB
   email: string;
   isAdmin: boolean;
   iat: number;

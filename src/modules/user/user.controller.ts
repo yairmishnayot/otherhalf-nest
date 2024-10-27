@@ -37,7 +37,7 @@ export class UserController {
   @Get('')
   @UseGuards(TeamLeadGuardGuard)
   findAll(@Req() req: BaseRequest) {
-    return this.userService.findAll();
+    return this.userService.findAll(req.user);
   }
 
   @Get(':id')
