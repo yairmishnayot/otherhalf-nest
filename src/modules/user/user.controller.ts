@@ -7,13 +7,15 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserImportService } from './user-import/user-import.service';
 import { ImportUsersDTO } from './dto/import-users.dto';
-import { AuthGuard } from '../auth/auth.gurad';
+import { TeamLeadGuardGuard } from 'src/modules/user/guards/team-lead-guard/team-lead-guard.guard';
+import { BaseRequest } from 'src/common/types/BaseRequest';
 
 @Controller('users')
 export class UserController {
@@ -32,9 +34,9 @@ export class UserController {
     return await this.userImportService.importUsers(importUsersDto);
   }
 
-  @UseGuards(AuthGuard)
-  @Get()
-  findAll() {
+  @Get('')
+  @UseGuards(TeamLeadGuardGuard)
+  findAll(@Req() req: BaseRequest) {
     return this.userService.findAll();
   }
 
