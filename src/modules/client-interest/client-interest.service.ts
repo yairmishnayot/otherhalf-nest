@@ -1,4 +1,4 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreateClientInterestDto } from './dto/create-client-interest.dto';
 import { UpdateClientInterestDto } from './dto/update-client-interest.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,7 +6,7 @@ import { ClientInterest } from './entities/client-interest.entity';
 import { Repository } from 'typeorm';
 import { Client } from '../client/entities/client.entity';
 import { CreateClientInterestResponseDto } from './dto/create-client-interest-response.dto';
-import { ClientInterestStatuses } from 'src/enums/client-interest-statuses.enum';
+import { ClientInterestStatuses } from '@/enums/client-interest-statuses.enum';
 import { ProjectsIds } from '../../enums/projectsIds.enum';
 import { Errors } from '../../enums/errors.enum';
 
