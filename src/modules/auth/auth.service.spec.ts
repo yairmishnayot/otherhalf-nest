@@ -5,10 +5,11 @@ import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '@/modules/user/entities/user.entity';
 import { RefreshToken } from '@/modules/auth/entities/refresh-token.entity';
-import { UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
 import { GetUserDto } from '@/modules/user/dto/get-user.dto';
+import { RefreshTokenDTO } from './dto/refresh.dto';
 
 // Mock dependencies
 const mockUserService = {
@@ -281,5 +282,113 @@ describe('AuthService - generateAccessToken', () => {
       isAdmin: true,
     });
     expect(result).toBe(token);
+  });
+});
+
+describe('AuthService - generateRefreshToken', () => {
+  let authService: AuthService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: UserService, useValue: mockUserService },
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: getRepositoryToken(User), useValue: mockUserRepository },
+        {
+          provide: getRepositoryToken(RefreshToken),
+          useValue: mockRefreshTokenRepository,
+        },
+      ],
+    }).compile();
+
+    authService = module.get<AuthService>(AuthService);
+
+    jest.clearAllMocks();
+  });
+
+  it('should generate a refresh token for a user and save it', async () => {
+    const mockUser = {
+      id: 1,
+      email: 'test@example.com',
+      isAdmin: true,
+      firstName: '',
+      lastName: '',
+      phone: '',
+      canManageMoreClients: false,
+      picture: '',
+      isFirstLogin: false,
+      status: false,
+      lastLoggedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      roles: [],
+    }; // Correct type of `status` to boolean
+    const refreshToken = 'refreshToken';
+    const tokenEntity = {
+      token: refreshToken,
+      expiryDate: new Date(),
+      user: mockUser,
+    };
+
+    mockJwtService.signAsync.mockResolvedValue(refreshToken);
+    mockRefreshTokenRepository.create.mockReturnValue(tokenEntity);
+
+    const result = await authService.generateRefreshToken(mockUser);
+
+    expect(mockJwtService.signAsync).toHaveBeenCalledWith(
+      { sub: 1 },
+      { expiresIn: '7d' },
+    );
+    expect(mockRefreshTokenRepository.create).toHaveBeenCalledWith({
+      token: refreshToken,
+      expiryDate: expect.any(Date),
+    });
+    expect(mockRefreshTokenRepository.save).toHaveBeenCalledWith(tokenEntity);
+    expect(result).toBe(refreshToken);
+  });
+});
+
+describe('AuthService - deleteRefreshTokensForUser', () => {
+  let authService: AuthService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: UserService, useValue: mockUserService },
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: getRepositoryToken(User), useValue: mockUserRepository },
+        {
+          provide: getRepositoryToken(RefreshToken),
+          useValue: mockRefreshTokenRepository,
+        },
+      ],
+    }).compile();
+
+    authService = module.get<AuthService>(AuthService);
+
+    jest.clearAllMocks();
+  });
+
+  it('should delete all refresh tokens for a user', async () => {
+    const queryBuilderMock = {
+      delete: jest.fn().mockReturnThis(),
+      from: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      execute: jest.fn(),
+    };
+    mockRefreshTokenRepository.createQueryBuilder.mockReturnValue(
+      queryBuilderMock,
+    );
+
+    await authService.deleteRefreshTokensForUser(1);
+
+    expect(mockRefreshTokenRepository.createQueryBuilder).toHaveBeenCalled();
+    expect(queryBuilderMock.delete).toHaveBeenCalled();
+    expect(queryBuilderMock.where).toHaveBeenCalledWith('user_id = :userId', {
+      userId: 1,
+    });
+    expect(queryBuilderMock.execute).toHaveBeenCalled();
   });
 });
