@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 // Mock dependencies
 const mockUserService = {
   findByEmail: jest.fn(),
+  findOne: jest.fn(),
 };
 
 const mockJwtService = {
@@ -137,6 +138,94 @@ describe('AuthService - signIn', () => {
       token: accessToken,
       refreshToken: refreshToken,
       user: mockUser,
+    });
+  });
+});
+
+describe('AuthService - resetPasswordUsingOldPassword', () => {
+  let authService: AuthService;
+  let userRepository: jest.Mocked<Repository<User>>;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: UserService, useValue: mockUserService },
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: getRepositoryToken(User), useValue: mockUserRepository },
+        {
+          provide: getRepositoryToken(RefreshToken),
+          useValue: mockRefreshTokenRepository,
+        },
+      ],
+    }).compile();
+
+    authService = module.get<AuthService>(AuthService);
+    userRepository = module.get(getRepositoryToken(User));
+
+    jest.clearAllMocks();
+  });
+
+  it('should throw UnauthorizedException if user is not found', async () => {
+    mockUserService.findOne.mockResolvedValue(null);
+
+    await expect(
+      authService.resetPasswordUsingOldPassword(
+        {
+          oldPassword: 'oldPass',
+          newPassword: 'newPass',
+          newPasswordConfirm: 'newPass',
+        },
+        1,
+      ),
+    ).rejects.toThrow(UnauthorizedException);
+    expect(mockUserService.findOne).toHaveBeenCalledWith(1);
+  });
+
+  it('should throw UnauthorizedException if old password is incorrect', async () => {
+    const mockUser = { id: 1, password: 'hashedPassword' };
+    mockUserService.findOne.mockResolvedValue(mockUser);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(false); // Properly mock bcrypt.compare
+
+    await expect(
+      authService.resetPasswordUsingOldPassword(
+        {
+          oldPassword: 'wrongOldPass',
+          newPassword: 'newPass',
+          newPasswordConfirm: 'newPass',
+        },
+        1,
+      ),
+    ).rejects.toThrow(UnauthorizedException);
+    expect(mockUserService.findOne).toHaveBeenCalledWith(1);
+    expect(bcrypt.compare).toHaveBeenCalledWith(
+      'wrongOldPass',
+      mockUser.password,
+    );
+  });
+
+  it('should reset the password if old password is correct', async () => {
+    const mockUser = { id: 1, password: 'hashedPassword', isFirstLogin: true };
+    mockUserService.findOne.mockResolvedValue(mockUser);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true); // Properly mock bcrypt.compare
+    (bcrypt.hash as jest.Mock).mockResolvedValue('newHashedPassword');
+
+    await authService.resetPasswordUsingOldPassword(
+      {
+        oldPassword: 'oldPass',
+        newPassword: 'newPass',
+        newPasswordConfirm: 'newPass',
+      },
+      1,
+    );
+
+    expect(mockUserService.findOne).toHaveBeenCalledWith(1);
+    expect(bcrypt.compare).toHaveBeenCalledWith('oldPass', 'hashedPassword');
+    expect(bcrypt.hash).toHaveBeenCalledWith('newPass', 10);
+    expect(mockUserRepository.save).toHaveBeenCalledWith({
+      ...mockUser,
+      password: 'newHashedPassword',
+      isFirstLogin: false,
     });
   });
 });
