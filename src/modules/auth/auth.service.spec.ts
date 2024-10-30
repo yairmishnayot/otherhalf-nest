@@ -8,6 +8,7 @@ import { RefreshToken } from '@/modules/auth/entities/refresh-token.entity';
 import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
+import { GetUserDto } from '@/modules/user/dto/get-user.dto';
 
 // Mock dependencies
 const mockUserService = {
@@ -227,5 +228,58 @@ describe('AuthService - resetPasswordUsingOldPassword', () => {
       password: 'newHashedPassword',
       isFirstLogin: false,
     });
+  });
+});
+
+describe('AuthService - generateAccessToken', () => {
+  let authService: AuthService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: UserService, useValue: mockUserService },
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: getRepositoryToken(User), useValue: mockUserRepository },
+        {
+          provide: getRepositoryToken(RefreshToken),
+          useValue: mockRefreshTokenRepository,
+        },
+      ],
+    }).compile();
+
+    authService = module.get<AuthService>(AuthService);
+
+    jest.clearAllMocks();
+  });
+
+  it('should generate an access token for a user', async () => {
+    const mockUser = {
+      id: 1,
+      email: 'test@example.com',
+      isAdmin: true,
+      firstName: '',
+      lastName: '',
+      phone: '',
+      canManageMoreClients: false,
+      picture: '',
+      isFirstLogin: false,
+      status: false,
+      lastLoggedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      roles: [],
+    }; // Correct type of `status` to boolean
+    const token = 'accessToken';
+    mockJwtService.signAsync.mockResolvedValue(token);
+
+    const result = await authService.generateAccessToken(mockUser);
+
+    expect(mockJwtService.signAsync).toHaveBeenCalledWith({
+      sub: 1,
+      email: 'test@example.com',
+      isAdmin: true,
+    });
+    expect(result).toBe(token);
   });
 });
