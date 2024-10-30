@@ -5,57 +5,138 @@ import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '@/modules/user/entities/user.entity';
 import { RefreshToken } from '@/modules/auth/entities/refresh-token.entity';
+import { UnauthorizedException } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
+import { Repository } from 'typeorm';
 
-// Create mocks for the dependencies
+// Mock dependencies
 const mockUserService = {
-  findOne: jest.fn(),
+  findByEmail: jest.fn(),
 };
 
 const mockJwtService = {
-  sign: jest.fn(),
-  verify: jest.fn(),
+  signAsync: jest.fn(),
 };
 
 const mockUserRepository = {
-  findOne: jest.fn(),
   save: jest.fn(),
 };
 
 const mockRefreshTokenRepository = {
-  findOne: jest.fn(),
   save: jest.fn(),
+  create: jest.fn(),
+  findOne: jest.fn(),
+  createQueryBuilder: jest.fn(() => ({
+    delete: jest.fn().mockReturnThis(),
+    from: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    execute: jest.fn(),
+  })),
 };
 
-describe('AuthService', () => {
-  let service: AuthService;
+// Mock bcrypt functions explicitly
+jest.mock('bcryptjs', () => ({
+  ...jest.requireActual('bcryptjs'),
+  compare: jest.fn(),
+  hash: jest.fn(),
+}));
+
+describe('AuthService - signIn', () => {
+  let authService: AuthService;
+  let userRepository: jest.Mocked<Repository<User>>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        { provide: UserService, useValue: mockUserService },
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: getRepositoryToken(User), useValue: mockUserRepository },
         {
-          provide: UserService,
-          useValue: mockUserService, // Mock UserService
-        },
-        {
-          provide: JwtService,
-          useValue: mockJwtService, // Mock JwtService
-        },
-        {
-          provide: getRepositoryToken(User), // Mock UserRepository
-          useValue: mockUserRepository,
-        },
-        {
-          provide: getRepositoryToken(RefreshToken), // Mock RefreshTokenRepository
+          provide: getRepositoryToken(RefreshToken),
           useValue: mockRefreshTokenRepository,
         },
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    authService = module.get<AuthService>(AuthService);
+    userRepository = module.get(getRepositoryToken(User));
+
+    jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  it('should throw UnauthorizedException if user is not found', async () => {
+    mockUserService.findByEmail.mockResolvedValue(null);
+
+    await expect(
+      authService.signIn('test@example.com', 'password'),
+    ).rejects.toThrow(UnauthorizedException);
+    expect(mockUserService.findByEmail).toHaveBeenCalledWith(
+      'test@example.com',
+    );
+  });
+
+  it('should throw UnauthorizedException if password is incorrect', async () => {
+    const mockUser = {
+      id: 1,
+      email: 'test@example.com',
+      password: 'hashedPassword',
+    };
+    mockUserService.findByEmail.mockResolvedValue(mockUser);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(false); // Properly mock bcrypt.compare
+
+    await expect(
+      authService.signIn('test@example.com', 'wrongpassword'),
+    ).rejects.toThrow(UnauthorizedException);
+    expect(mockUserService.findByEmail).toHaveBeenCalledWith(
+      'test@example.com',
+    );
+    expect(bcrypt.compare).toHaveBeenCalledWith(
+      'wrongpassword',
+      mockUser.password,
+    );
+  });
+
+  it('should sign in the user and return tokens if credentials are correct', async () => {
+    const mockUser = {
+      id: 1,
+      email: 'test@example.com',
+      password: 'hashedPassword',
+      lastLoggedAt: null,
+    };
+    const accessToken = 'accessToken';
+    const refreshToken = 'refreshToken';
+
+    mockUserService.findByEmail.mockResolvedValue(mockUser);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true); // Properly mock bcrypt.compare
+    mockUserRepository.save.mockResolvedValue(mockUser);
+    jest.spyOn(authService, 'deleteRefreshTokensForUser').mockResolvedValue();
+    jest
+      .spyOn(authService, 'generateAccessToken')
+      .mockResolvedValue(accessToken);
+    jest
+      .spyOn(authService, 'generateRefreshToken')
+      .mockResolvedValue(refreshToken);
+
+    const result = await authService.signIn('test@example.com', 'password');
+
+    expect(mockUserService.findByEmail).toHaveBeenCalledWith(
+      'test@example.com',
+    );
+    expect(bcrypt.compare).toHaveBeenCalledWith('password', mockUser.password);
+    expect(mockUserRepository.save).toHaveBeenCalledWith(
+      expect.objectContaining({ lastLoggedAt: expect.any(Date) }),
+    );
+    expect(authService.deleteRefreshTokensForUser).toHaveBeenCalledWith(
+      mockUser.id,
+    );
+    expect(authService.generateAccessToken).toHaveBeenCalledWith(mockUser);
+    expect(authService.generateRefreshToken).toHaveBeenCalledWith(mockUser);
+
+    expect(result).toEqual({
+      token: accessToken,
+      refreshToken: refreshToken,
+      user: mockUser,
+    });
   });
 });
