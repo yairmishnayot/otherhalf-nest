@@ -12,19 +12,20 @@ export class RoleSeederService {
     private roleRepository: Repository<Role>,
   ) {}
 
-  async seed() {
+  async seed(roles: { name: string; hebrewName: string }[] = []) {
     this.logger.log('Starting seeding roles');
-
-    const roles = [
-      { name: 'CEO', hebrewName: 'מנכ"ל' },
-      { name: 'Managers Team Lead', hebrewName: 'ראש צוות' },
-      { name: 'Manager', hebrewName: 'מנהל' },
-      { name: 'CFO', hebrewName: 'מנהל כספים' },
-      { name: 'Operational Manager', hebrewName: 'מנהל תפעולי' },
-      { name: 'Fundraising Manager', hebrewName: 'מנהל גיוס כספים' },
-      { name: 'Marketing', hebrewName: 'שיווק' },
-      { name: 'Team Member', hebrewName: 'חבר צוות' },
-    ];
+    if (roles.length === 0) {
+      roles = [
+        { name: 'CEO', hebrewName: 'מנכ"ל' },
+        { name: 'Managers Team Lead', hebrewName: 'ראש צוות' },
+        { name: 'Manager', hebrewName: 'מנהל' },
+        { name: 'CFO', hebrewName: 'מנהל כספים' },
+        { name: 'Operational Manager', hebrewName: 'מנהל תפעולי' },
+        { name: 'Fundraising Manager', hebrewName: 'מנהל גיוס כספים' },
+        { name: 'Marketing', hebrewName: 'שיווק' },
+        { name: 'Team Member', hebrewName: 'חבר צוות' },
+      ];
+    }
 
     for (const role of roles) {
       const entity = this.roleRepository.create({
