@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Ethnicity } from 'src/modules/ethnicity/entities/ethnicity.entity';
+import { Ethnicity } from '@/modules/ethnicity/entities/ethnicity.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
