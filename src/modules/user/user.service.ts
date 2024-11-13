@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,7 @@ import { GetUserDto } from './dto/get-user.dto';
 import { RequestUser } from 'src/common/types/BaseRequest';
 import { UserGroup } from '../user-group/entities/user-group.entity';
 import { Roles } from 'src/enums';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -18,8 +19,29 @@ export class UserService {
     @InjectRepository(UserGroup)
     private userGroupRepository: Repository<UserGroup>,
   ) {}
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    // Check if the user already exists by email or phone
+    const existingUser = await this.userRepository.findOne({
+      where: [{ email: createUserDto.email }, { phone: createUserDto.phone }],
+    });
+
+    if (existingUser) {
+      throw new BadRequestException(
+        'User with this email or phone already exists',
+      );
+    }
+
+    // Hash the password before saving (using phone as a placeholder)
+    const passwordHash = await bcrypt.hash(createUserDto.phone, 10);
+
+    // Create a new user entity instance
+    const newUser = this.userRepository.create({
+      ...createUserDto,
+      password: passwordHash, // Ensure password is securely stored
+    });
+
+    // Save the new user entity to the database
+    return await this.userRepository.save(newUser);
   }
 
   async findAll(user: RequestUser) {
