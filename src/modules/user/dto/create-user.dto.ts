@@ -1,4 +1,10 @@
-import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -14,4 +20,7 @@ export class CreateUserDto {
   @IsString()
   @MaxLength(17)
   phone: string;
+
+  @IsNumber()
+  groupId: number;
 }

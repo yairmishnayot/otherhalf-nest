@@ -24,6 +24,7 @@ export class UserController {
     private readonly userImportService: UserImportService,
   ) {}
 
+  @UseGuards(TeamLeadGuardGuard)
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);

@@ -14,6 +14,8 @@ import { UserGroup } from '../user-group/entities/user-group.entity';
 import { Roles } from 'src/enums';
 import * as bcrypt from 'bcryptjs';
 import { Client } from '../client/entities/client.entity';
+import { Group } from '../group/entities/group.entity';
+import { Role } from '../role/entities/role.entity';
 
 @Injectable()
 export class UserService {
@@ -26,6 +28,12 @@ export class UserService {
 
     @InjectRepository(Client)
     private clientRepository: Repository<Client>,
+
+    @InjectRepository(Group)
+    private groupRepository: Repository<Group>,
+
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>,
   ) {}
   async create(createUserDto: CreateUserDto): Promise<User> {
     // Check if the user already exists by email or phone
@@ -49,7 +57,18 @@ export class UserService {
     });
 
     // Save the new user entity to the database
-    return await this.userRepository.save(newUser);
+    await this.userRepository.save(newUser);
+
+    // Create the user group record for the new user.
+    const group = await this.groupRepository.findOne({
+      where: { id: createUserDto.groupId },
+    });
+
+    const role = await this.roleRepository.findOne({ where: { id: 3 } }); // Manager
+
+    await this.userGroupRepository.save({ user: newUser, group, role });
+
+    return newUser;
   }
 
   async findAll(user: RequestUser) {
