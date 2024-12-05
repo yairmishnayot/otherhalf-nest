@@ -51,7 +51,8 @@ export class UserController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @UseGuards(TeamLeadGuardGuard)
+  remove(@Param('id') id: string, @Req() req: BaseRequest) {
+    return this.userService.delete(+id, req.user);
   }
 }

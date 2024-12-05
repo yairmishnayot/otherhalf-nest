@@ -8,10 +8,18 @@ import { Role } from '../role/entities/role.entity';
 import { Group } from '../group/entities/group.entity';
 import { UserGroup } from '../user-group/entities/user-group.entity';
 import { RefreshToken } from '../auth/entities/refresh-token.entity';
+import { Client } from '../client/entities/client.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Role, Group, UserGroup, RefreshToken]),
+    TypeOrmModule.forFeature([
+      User,
+      Role,
+      Group,
+      UserGroup,
+      RefreshToken,
+      Client,
+    ]),
   ],
   controllers: [UserController],
   providers: [UserService, UserImportService],

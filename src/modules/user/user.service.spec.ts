@@ -4,11 +4,13 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { UserGroup } from '../user-group/entities/user-group.entity';
 import { Repository } from 'typeorm';
+import { Client } from '../client/entities/client.entity';
 
 describe('UserService', () => {
   let service: UserService;
   let userRepository: Repository<User>;
   let userGroupRepository: Repository<UserGroup>;
+  let clientRepository: Repository<Client>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -21,6 +23,10 @@ describe('UserService', () => {
         {
           provide: getRepositoryToken(UserGroup),
           useClass: Repository, // Mock repository for UserGroup
+        },
+        {
+          provide: getRepositoryToken(Client),
+          useClass: Repository, // Mock repository for Client
         },
       ],
     }).compile();

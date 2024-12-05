@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +13,7 @@ import { RequestUser } from 'src/common/types/BaseRequest';
 import { UserGroup } from '../user-group/entities/user-group.entity';
 import { Roles } from 'src/enums';
 import * as bcrypt from 'bcryptjs';
+import { Client } from '../client/entities/client.entity';
 
 @Injectable()
 export class UserService {
@@ -18,6 +23,9 @@ export class UserService {
 
     @InjectRepository(UserGroup)
     private userGroupRepository: Repository<UserGroup>,
+
+    @InjectRepository(Client)
+    private clientRepository: Repository<Client>,
   ) {}
   async create(createUserDto: CreateUserDto): Promise<User> {
     // Check if the user already exists by email or phone
@@ -88,6 +96,7 @@ export class UserService {
       where: {
         id: id,
       },
+      relations: ['userGroups', 'userGroups.role', 'userGroups.group'],
     });
   }
 
@@ -95,8 +104,13 @@ export class UserService {
     return `This action updates a #${id} user`;
   }
 
-  async remove(id: number) {
-    await this.userRepository.delete(id);
+  async delete(id: number, user: RequestUser) {
+    if (user.isAdmin || (await this.isTeamLeadOfUser(user.sub, id))) {
+      await this.clientRepository.update({ user: { id: id } }, { user: null });
+      await this.userRepository.delete(id);
+    } else {
+      throw new ForbiddenException();
+    }
   }
 
   async findByEmail(email: string): Promise<GetUserDto> {
@@ -115,5 +129,37 @@ export class UserService {
       ...userWithoutGroups,
       roles, // Add the roles array here
     };
+  }
+
+  async isTeamLeadOfUser(teamLeadId: number, userId: number) {
+    const teamLead = await this.findOne(teamLeadId);
+    const user = await this.findOne(userId);
+    let isTeamLeadOfUserFlag = false;
+
+    if (!teamLead || !user) {
+      return isTeamLeadOfUserFlag;
+    }
+
+    const teamLeadGroups = teamLead.userGroups;
+    const userGroups = user.userGroups;
+
+    // Go over the groups that has this team lead as a team lead, search if the user belongs to them
+    const teamLeadTargetGroups = [];
+    teamLeadGroups.forEach((teamLeadGroup) => {
+      if (teamLeadGroup.role.id === Roles.ManagersTeamLead) {
+        teamLeadTargetGroups.push(teamLeadGroup.group.id);
+      }
+    });
+
+    userGroups.forEach((userGroup) => {
+      if (
+        userGroup.role.id === Roles.Manager &&
+        teamLeadTargetGroups.includes(userGroup.group.id)
+      ) {
+        isTeamLeadOfUserFlag = true;
+      }
+    });
+
+    return isTeamLeadOfUserFlag;
   }
 }
