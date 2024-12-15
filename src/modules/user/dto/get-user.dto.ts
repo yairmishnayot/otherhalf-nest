@@ -1,4 +1,5 @@
 import { Role } from '../../role/entities/role.entity';
+import { Group } from '@/modules/group/entities/group.entity';
 export class GetUserDto {
   id: number;
   firstName: string;
@@ -15,4 +16,5 @@ export class GetUserDto {
   createdAt: Date;
   updatedAt: Date;
   roles: Role[];
+  groups: Group[];
 }

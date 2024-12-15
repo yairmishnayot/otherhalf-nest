@@ -135,15 +135,23 @@ export class UserService {
   async findByEmail(email: string): Promise<GetUserDto> {
     const user = await this.userRepository.findOne({
       where: { email },
-      relations: ['userGroups', 'userGroups.role'], // Load userGroups and their roles
+      relations: ['userGroups', 'userGroups.role', 'userGroups.group'], // Load userGroups and their roles
     });
 
     // Map the roles from userGroups into a separate array
     const roles = user.userGroups.map((userGroup) => userGroup.role);
+    // Map groups with role ID included
+    const groups = user.userGroups.map((userGroup) => {
+      return {
+        ...userGroup.group, // Spread group details
+        roleId: userGroup.role.id, // Add role ID from the userGroup
+      };
+    });
 
     return {
       ...user,
       roles, // Add the roles array here
+      groups,
     };
   }
 

@@ -147,19 +147,21 @@ export class AuthService {
       throw new ForbiddenException(`Refresh token is not valid`);
     }
 
+    const user = await this.usersService.findByEmail(record.user.email);
+
     // delete the token
-    this.deleteRefreshTokensForUser(record.user.id);
+    await this.deleteRefreshTokensForUser(user.id);
 
     // generate new token
-    const newToken = await this.generateAccessToken(record.user);
+    const newToken = await this.generateAccessToken(user);
 
     // generate new refresh token && save the refresh token to db
-    const newRefreshToken = await this.generateRefreshToken(record.user);
+    const newRefreshToken = await this.generateRefreshToken(user);
 
     return {
       token: newToken,
       refreshToken: newRefreshToken,
-      user: record.user,
+      user: user,
     };
   }
 }
