@@ -141,11 +141,8 @@ export class UserService {
     // Map the roles from userGroups into a separate array
     const roles = user.userGroups.map((userGroup) => userGroup.role);
 
-    // Remove the `userGroups` field and attach the `roles` array to the user object
-    const { userGroups, ...userWithoutGroups } = user;
-
     return {
-      ...userWithoutGroups,
+      ...user,
       roles, // Add the roles array here
     };
   }
